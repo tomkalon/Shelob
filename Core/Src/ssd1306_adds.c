@@ -21,7 +21,7 @@ volatile uint8_t progressBarStep	= 0; 			// polozenie wskaznika stron
 
 //markery wyboru
 volatile int8_t markerPosition 		= 0; 			// polozenie wskaznika ustawianej wartosci
-volatile int8_t valueToken[4] 		= {0,0,0,0};	// ustawianie wartosci
+volatile int8_t arrayToken[5] 		= {0,0,0,0,0};	// ustawianie wartosci
 
 void setTheme(void)
 {
@@ -50,7 +50,22 @@ void setTheme(void)
 		break;
 		case 2: // ustawienie szerokości karkasu
 			showLabelBar(DISP_SET_WIDTH_LABEL);
-			showWidthScreen(0, 0);
+			showValueScreen(CARCASS_WIDTH, 0, 0, FIRST_RUN);
+		break;
+		case 3: // ustawienie ilosci zwojow
+			showLabelBar(DISP_SET_TURNS_LABEL);
+			showValueScreen(CARCASS_COIL_TURNS, 0, 0, FIRST_RUN);
+		break;
+		case 4: // srednica uzwojenia
+			showLabelBar(DISP_SET_DIAMETER_LABEL);
+			showValueScreen(WINDING_DIAMETER, 0, 0, FIRST_RUN);
+		break;
+		case 5: // szybkosc nawijania
+			showLabelBar(DISP_SET_DIAMETER_LABEL);
+			showValueScreen(WINDING_SPEED, 0, 0, FIRST_RUN);
+		break;
+		case 6: // podsumowanie
+			showLabelBar(DISP_SET_SUMMARY_LABEL);
 		break;
 	}
 	SSD1306_UpdateScreen();
@@ -217,29 +232,75 @@ void showProjectDetails(Project * project)
 	SSD1306_Puts(desc2, &Font_7x10, 1);
 }
 
-// szerokosc karkasu - 2
+// ustawianie wartosci - 2++
 // -------------------------------------------------------------------------------------
-void showWidthScreen(uint8_t runMode, bool direction)
+void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, bool first)
 {
-	char value[8];
-	if(!runMode)
+	char valueLettering[10];
+	uint8_t typeToken = type;
+
+	switch (typeToken)
 	{
-		SSD1306_DrawBitmap(0, 0, width, 128, 64, 1);
+		case 0:
+			if(first) {
+				SSD1306_DrawBitmap(0, 0, width, 128, 64, 1);
+				intToArray_chVal(CARCASS_MIN_WIDTH);
+			}
+			else
+			{
+				if(runMode) {changeValue(direction, markerPosition, CARCASS_MIN_WIDTH, CARCASS_MAX_WIDTH);}
+				else{moveMarker(4);}
+			}
+			setMarkerPosition(1);
+			sprintf(valueLettering, "%i%i%i.%imm", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
+		break;
+		case 1:
+			if(first) {
+				SSD1306_DrawBitmap(0, 0, turns, 128, 64, 1);
+				intToArray_chVal(CARCASS_MIN_TURNS);
+			}
+			else
+			{
+				if(runMode) {changeValue(direction, markerPosition, CARCASS_MIN_TURNS, CARCASS_MAX_TURNS);}
+				else{moveMarker(4);}
+			}
+			setMarkerPosition(0);
+			sprintf(valueLettering, "%i%i%i%izw.", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
+		break;
+		case 2:
+			if(first) {
+				SSD1306_DrawBitmap(0, 0, diameter, 128, 64, 1);
+				intToArray_chVal(WINDING_MIN_DIAMETER);
+			}
+			else
+			{
+				if(runMode) {changeValue(direction, markerPosition, WINDING_MIN_DIAMETER, WINDING_MAX_DIAMETER);}
+				else{moveMarker(3);}
+			}
+			setMarkerPosition(2);
+			sprintf(valueLettering, "~%i.%i%imm", arrayToken[2], arrayToken[1], arrayToken[0]);
+		break;
+		case 3:
+			if(first) {
+				SSD1306_DrawBitmap(0, 0, speed, 128, 64, 1);
+				intToArray_chVal(WINDING_MIN_SPEED);
+			}
+			else
+			{
+				if(runMode) {changeValue(direction, markerPosition, WINDING_MIN_SPEED, WINDING_MAX_SPEED);}
+				else{moveMarker(1);}
+			}
+			setMarkerPosition(0);
+			sprintf(valueLettering, "   %i", arrayToken[0]);
+		break;
 	}
-	else if(runMode == 2)
-	{
-		changeValue(direction, 0, 9);
-	}
-		setMarkerPosition(1);
-		sprintf(value, "%i%i%i.%imm", valueToken[3], valueToken[2], valueToken[1], valueToken[0]);
-		clearValue();
-		SSD1306_GotoXY(25, 20);
-		SSD1306_Puts(value, &Font_11x18, 1);
-		SSD1306_UpdateScreen();
+
+	clearValue();
+	SSD1306_GotoXY(25, 20);
+	SSD1306_Puts(valueLettering, &Font_11x18, 1);
+	SSD1306_UpdateScreen();
 }
 
-// ustawianie wartosci
-// -------------------------------------------------------------------------------------
 void setMarkerPosition(uint8_t divider)
 {
 	clearMarker();
@@ -252,27 +313,74 @@ void setMarkerPosition(uint8_t divider)
 	drawMarker(margin, 39);
 }
 
-void moveMarker(void)
+void moveMarker(uint8_t range)
 {
 	markerPosition++;
-	if(markerPosition >= 4) {markerPosition = 0;}
+	if(markerPosition >= range) {markerPosition = 0;}
 }
 
-void changeValue(bool set, uint16_t min, uint16_t max)
+void changeValue(bool set, uint8_t position, uint16_t min, uint16_t max)
 {
-	uint8_t minV = 0;
-	uint8_t maxV = 9;
+	uint16_t value;
+	uint16_t valueToken = arrayToInt_chVal();
+	uint16_t expo 		= 1;
+	for(uint8_t i = 0; i < position; i++)
+	{
+		expo = expo * 10;
+	}
+
+	uint8_t overflowFlag = arrayToken[position] = (valueToken / expo) % 10; // określa wartość cyfry nad markerem wyboru
 
 	if(set)
 	{
-		valueToken[markerPosition]++;
+		if(overflowFlag >= 9)
+		{
+			value = valueToken - (expo * 9);
+		}
+		else
+		{
+			value = valueToken + expo;
+		}
 	}
 	else
 	{
-		valueToken[markerPosition]--;
+		if(overflowFlag <= 0)
+		{
+			value = valueToken + (expo * 9);
+		}
+		else
+		{
+			value = valueToken - expo;
+		}
 	}
-	if(valueToken[markerPosition] > maxV) {valueToken[markerPosition] = minV;}
-	if(valueToken[markerPosition] < minV) {valueToken[markerPosition] = maxV;}
+	if(value < min){value = valueToken;}
+	if(value > max){value = valueToken;}
+	intToArray_chVal(value);
+}
+
+uint16_t arrayToInt_chVal(void)
+{
+	uint16_t expo;
+	uint16_t value = 0;
+
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		if(!i){expo = 1;}
+		else{expo = expo * 10;}
+		value = value + (expo * arrayToken[i]);
+	}
+	return value;
+}
+
+void intToArray_chVal(uint16_t value)
+{
+	uint16_t expo;
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		if(!i){expo = 1;}
+		else{expo = expo * 10;}
+		arrayToken[i] = (value / expo) % 10;
+	}
 }
 
 void drawMarker(uint8_t width, uint8_t height)
@@ -294,6 +402,12 @@ void clearMarker(void)
 void clearValue(void)
 {
 	SSD1306_DrawFilledRectangle(20, 20, 100, 18, 0);
+}
+
+void clearSettings(void)
+{
+	intToArray_chVal(CARCASS_MIN_TURNS);
+	markerPosition = 0;
 }
 
 // uniwersalne

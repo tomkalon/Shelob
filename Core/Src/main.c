@@ -53,14 +53,19 @@
 // UART
 uint8_t usart2data; 					// znaki odbierane przez UART'a
 
-//TIM2
+// TIM2
 volatile uint16_t 	encoderCount;				 	// aktualne polozenie enkodera
 volatile uint16_t 	encoderCountPrev 	= 16000; 	// poprzednie polozenie enkodera
 
-//menu wyboru
+// TIM6
+volatile uint8_t 	pressBtnCounter		= 0;	// licznik czasu wcisniecia przycisku
+const 	 uint8_t	PRESS_BTN_TIME		= 15;	// dlugosc wcisniecia przycisku do zapisania danych
+
+// TIM7
+
+// MENU PRZYGOTOWANIA I KONFIGURACJI PROJEKTU
 extern volatile uint8_t workStep;		// Wskazuje aktualny krok w ustawieniach
 extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
-
 extern const uint8_t PROJECT_COUNT;		// Ilość zapisanych projektów
 
 // GLOWNE ZMIENNE
@@ -185,6 +190,12 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/* **********************************************IRQ************************************* */
+
+// =========================================================================================
+/* UART */
+// =========================================================================================
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance==USART2)
@@ -197,6 +208,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
+// =========================================================================================
+/* TIMERS - ENCODER */
+// =========================================================================================
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim->Instance == TIM2)
@@ -213,26 +227,78 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	}
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-	uint8_t tim6BusyFlag = HAL_TIM_Base_GetState(&htim7);
-	if(tim6BusyFlag == 1)
-	{
-		if(GPIO_Pin == SET_BTN_Pin)
-		{
-			HAL_TIM_Base_Start_IT(&htim6);
-		}
-	}
-}
-
+// =========================================================================================
+/* TIMERS - COUNTING */
+// =========================================================================================
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+
+	// ========================
+	/* TIM6 - CLICK BUFFOR */
+	// ========================
 	if(htim->Instance == TIM6)
 	{
+		bool btnBusyFlag = HAL_GPIO_ReadPin(GPIOA, SET_BTN_Pin);
 		HAL_TIM_Base_Stop_IT(&htim6);
-		bool btnBusyFlag = HAL_GPIO_ReadPin(GPIOA, SET_BTN_Pin); // buffor kliknięcia
+
 		if(!btnBusyFlag)
 		{
+			HAL_TIM_Base_Start_IT(&htim6);
+			switch(workStep)
+			{
+				case 2: // step 2
+					pressBtnCounter++;
+					if(pressBtnCounter > PRESS_BTN_TIME)
+					{
+						width_MAIN = arrayToInt_chVal();
+						workStep = 3;
+						pressBtnCounter = 0;
+						HAL_TIM_Base_Stop_IT(&htim6);
+						clearSettings();
+						setTheme();
+					}
+				break;
+				case 3: // step 3
+					pressBtnCounter++;
+					if(pressBtnCounter > PRESS_BTN_TIME)
+					{
+						turns_MAIN = arrayToInt_chVal();
+						workStep = 4;
+						pressBtnCounter = 0;
+						HAL_TIM_Base_Stop_IT(&htim6);
+						clearSettings();
+						setTheme();
+					}
+				break;
+				case 4: // step 4
+					pressBtnCounter++;
+					if(pressBtnCounter > PRESS_BTN_TIME)
+					{
+						diameter_MAIN = arrayToInt_chVal();
+						workStep = 5;
+						pressBtnCounter = 0;
+						HAL_TIM_Base_Stop_IT(&htim6);
+						clearSettings();
+						setTheme();
+					}
+				break;
+				case 5: // step 5
+					pressBtnCounter++;
+					if(pressBtnCounter > PRESS_BTN_TIME)
+					{
+						speed_MAIN = arrayToInt_chVal();
+						workStep = 6;
+						pressBtnCounter = 0;
+						HAL_TIM_Base_Stop_IT(&htim6);
+						clearSettings();
+						setTheme();
+					}
+				break;
+			}
+		}
+		if(btnBusyFlag)
+		{
+			pressBtnCounter = 0;
 			switch(workStep)
 			{
 				case 1: // step 1
@@ -251,12 +317,24 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					setTheme();
 				break;
 				case 2: // step 2
-					moveMarker();
-					showWidthScreen(1, 0);
+					showValueScreen(CARCASS_WIDTH, VALUE_NO_CHANGING, 0, CONTI_RUN);
+				break;
+				case 3: // step 3
+					showValueScreen(CARCASS_COIL_TURNS, VALUE_NO_CHANGING, 0, CONTI_RUN);
+				break;
+				case 4: // step 4
+					showValueScreen(WINDING_DIAMETER, VALUE_NO_CHANGING, 0, CONTI_RUN);
+				break;
+				case 5: // step 5
+					showValueScreen(WINDING_SPEED, VALUE_NO_CHANGING, 0, CONTI_RUN);
 				break;
 			}
 		}
 	}
+
+	// ========================
+	/* TIM7 - BUFFOR LEFT/RIGHT */
+	// ========================
 	if(htim->Instance == TIM7)
 	{
 		HAL_TIM_Base_Stop_IT(&htim7);
@@ -293,12 +371,39 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					setTheme();
 				break;
 				case 2: // step 2
-						showWidthScreen(2, direction);
+					showValueScreen(CARCASS_WIDTH, VALUE_CHANGING, direction, CONTI_RUN);
+				break;
+				case 3: // step 3
+					showValueScreen(CARCASS_COIL_TURNS, VALUE_CHANGING, direction, CONTI_RUN);
+				break;
+				case 4: // step 4
+					showValueScreen(WINDING_DIAMETER, VALUE_CHANGING, direction, CONTI_RUN);
+				break;
+				case 5: // step 4
+					showValueScreen(WINDING_SPEED, VALUE_CHANGING, direction, CONTI_RUN);
 				break;
 			}
 		}
 	}
 }
+
+// =========================================================================================
+/* GPIO */
+// =========================================================================================
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	uint8_t tim6BusyFlag = HAL_TIM_Base_GetState(&htim7);
+	if(tim6BusyFlag == 1)
+	{
+		if(GPIO_Pin == SET_BTN_Pin)
+		{
+			HAL_TIM_Base_Start_IT(&htim6);
+		}
+	}
+}
+// =========================================================================================
+// -----------------------------------------------------------------------------------------
+
 
 /* USER CODE END 4 */
 
