@@ -14,8 +14,7 @@ extern C {
 #endif
 
 #include "ssd1306.h"
-#include <stdbool.h>
-#include <stdio.h>
+#include "misc.h"
 
 /* STRUCT */
 //=============================
@@ -51,8 +50,6 @@ typedef enum {
 	WINDING_MAX_DIAMETER	= 250,	// 2,5mm - maksymalna srednica uzwojenia
 	WINDING_MIN_SPEED		= 1,	// min szybkość nawijania
 	WINDING_MAX_SPEED		= 9,	// max szybkość nawijania
-
-
 } VALUE_RANGE;
 
 // CHANGE VALUE
@@ -114,6 +111,6 @@ void showLabelBar(char* label); 									// wyswietla pasek z tytulem strony
 void clearContent(void); 											// czyści na wyswietlaczu obszar ponizej paska postepu
 void paginationBar(uint8_t pageBarWidth, uint8_t pageNo); 			// wyswietla pasek postepu - szerokosc pojedynczej strony, aktualna strona
 Project getProjectStructByID(uint8_t id); 							// zwraca strukture w zaleznosci od wybranego id
-uint8_t countArray(Project * project); 								// zlicza ilosc tablic pierwszego wymiaru
+uint8_t countArray(Project * project); 								// określa ilość zadań w danym projekcie
 
 #endif /* INC_SSD1306_ADDS_H_ */

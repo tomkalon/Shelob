@@ -29,7 +29,8 @@ Core/Src/misc.o: ../Core/Src/misc.c ../Core/Inc/misc.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h \
- ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h
+ ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h \
+ ../Core/Inc/i2c.h ../Core/Inc/tim.h ../Core/Inc/gpio.h
 ../Core/Inc/misc.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/main.h:
@@ -63,3 +64,6 @@ Core/Src/misc.o: ../Core/Src/misc.c ../Core/Inc/misc.h \
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h:
+../Core/Inc/i2c.h:
+../Core/Inc/tim.h:
+../Core/Inc/gpio.h:

@@ -18,17 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "i2c.h"
-#include "tim.h"
-#include "usart.h"
-#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ssd1306.h"
 #include "ssd1306_adds.h"
-#include <stdio.h>
-#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -66,7 +59,10 @@ const 	 uint8_t	PRESS_BTN_TIME		= 15;	// dlugosc wcisniecia przycisku do zapisan
 // MENU PRZYGOTOWANIA I KONFIGURACJI PROJEKTU
 extern volatile uint8_t workStep;		// Wskazuje aktualny krok w ustawieniach
 extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
-extern const uint8_t PROJECT_COUNT;		// Ilość zapisanych projektów
+
+#ifndef PROJECT_COUNT
+#define PROJECT_COUNT 3
+#endif
 
 // GLOWNE ZMIENNE
 volatile uint8_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;

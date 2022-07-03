@@ -14,9 +14,14 @@ extern C {
 #endif
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "usart.h"
+#include "i2c.h"
+#include "tim.h"
+#include "gpio.h"
 
 // UART
 void printUART(unsigned char str[]);

@@ -7,10 +7,9 @@
 
 #include "ssd1306_adds.h"
 #include "ssd1306_bitmaps.h"
-#include "misc.h"
 
 // CONST
-const uint8_t PROJECT_COUNT 		= 3; 			// liczba zapisanych projektów
+#define PROJECT_COUNT 3 			// liczba zapisanych projektów
 
 // VAR
 volatile uint8_t workStep			= 0;
@@ -179,7 +178,7 @@ void showProjectElements(Project * project, uint8_t margin)
 			color = 0;
 		}
 	}
-	margin = margin + 4;
+	margin += 4;
 	SSD1306_GotoXY(margin, 29);
 	SSD1306_Puts(project->shortName, &Font_7x10, color);
 	SSD1306_GotoXY(margin, 40);
@@ -326,7 +325,7 @@ void changeValue(bool set, uint8_t position, uint16_t min, uint16_t max)
 	uint16_t expo 		= 1;
 	for(uint8_t i = 0; i < position; i++)
 	{
-		expo = expo * 10;
+		expo *= 10;
 	}
 
 	uint8_t overflowFlag = arrayToken[position] = (valueToken / expo) % 10; // określa wartość cyfry nad markerem wyboru
@@ -366,7 +365,7 @@ uint16_t arrayToInt_chVal(void)
 	for(uint8_t i = 0; i < 5; i++)
 	{
 		if(!i){expo = 1;}
-		else{expo = expo * 10;}
+		else{expo *= 10;}
 		value = value + (expo * arrayToken[i]);
 	}
 	return value;
@@ -378,7 +377,7 @@ void intToArray_chVal(uint16_t value)
 	for(uint8_t i = 0; i < 5; i++)
 	{
 		if(!i){expo = 1;}
-		else{expo = expo * 10;}
+		else{expo *= 10;}
 		arrayToken[i] = (value / expo) % 10;
 	}
 }
