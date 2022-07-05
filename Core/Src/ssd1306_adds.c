@@ -22,13 +22,99 @@ uint8_t progressBarStep			= 0; 	// polozenie wskaznika stron
 int8_t markerPosition 				= 0; 			// polozenie wskaznika ustawianej wartosci
 volatile int8_t arrayToken[5] 		= {0,0,0,0,0};	// ustawianie wartosci
 
+// STRUCT
+ProjectManager Details[4];
+Step Settings[4];
+
+void structInit(void)
+{
+	uint8_t i = 0;
+
+	// STEP
+	// ============================================================
+	// STEP WIDTH
+	Settings[i].minValue = CARCASS_MIN_WIDTH;
+	Settings[i].setValue = 0;
+	Settings[i].maxValue = CARCASS_MAX_WIDTH;
+	Settings[i].digitsCount = 4;
+	Settings[i].dotPosition = 1;
+	i++;
+
+	// STEP TURNS
+	Settings[i].minValue = CARCASS_MIN_TURNS;
+	Settings[i].setValue = 0;
+	Settings[i].maxValue = CARCASS_MAX_TURNS;
+	Settings[i].digitsCount = 4;
+	Settings[i].dotPosition = 0;
+	i++;
+
+	// STEP DIAMETER
+	Settings[i].minValue = WINDING_MIN_DIAMETER;
+	Settings[i].setValue = 0;
+	Settings[i].maxValue = WINDING_MAX_DIAMETER;
+	Settings[i].digitsCount = 3;
+	Settings[i].dotPosition = 2;
+	i++;
+
+	// STEP SPEED
+	Settings[i].minValue = WINDING_MIN_SPEED;
+	Settings[i].setValue = 0;
+	Settings[i].maxValue = WINDING_MAX_SPEED;
+	Settings[i].digitsCount = 1;
+	Settings[i].dotPosition = 0;
+	i=0;
+
+	// PROJECT
+	// ============================================================
+	//PROJECT - PEAVEY CLASSIC 30 - MAIN TRANSFORMER
+	strcpy(Details[i].fullName, "Peavey-C30-Main");
+	strcpy(Details[i].shortName, "P-C30-M");
+	strcpy(Details[i].descShort_1, "230V");
+	strcpy(Details[i].descShort_2, "270V, 30V");
+	Details[i].width		= 1150;
+	Details[i].turns[0]		= 1100;
+	Details[i].diameter[0]	= 10;
+	Details[i].turns[1]		= 900;
+	Details[i].diameter[1]	= 15;
+	Details[i].turns[2]		= 200;
+	Details[i].diameter[2]	= 100;
+	i++;
+
+	//PROJECT - PEAVEY CLASSIC 30 - SPEAKER TRANSFORMER
+	strcpy(Details[i].fullName, "Peavey-C30-SPK");
+	strcpy(Details[i].shortName, "P-C30-S");
+	strcpy(Details[i].descShort_1, "4XEL84");
+	strcpy(Details[i].descShort_2, "16 Ohms");
+	Details[i].width		= 650;
+	Details[i].turns[0]		= 900;
+	Details[i].diameter[0]	= 20;
+	Details[i].turns[1]		= 600;
+	Details[i].diameter[1]	= 120;
+	i++;
+
+	//PROJECT - TEST
+	strcpy(Details[i].fullName, "TEST-FULL");
+	strcpy(Details[i].shortName, "TEST-SH");
+	strcpy(Details[i].descShort_1, "2XEL84");
+	strcpy(Details[i].descShort_2, "4-8-16");
+	Details[i].width		= 800;
+	Details[i].turns[0]		= 2500;
+	Details[i].diameter[0]	= 250;
+	Details[i].turns[1]		= 10;
+	Details[i].diameter[1]	= 1;
+	Details[i].turns[2]		= 2500;
+	Details[i].diameter[2]	= 1;
+	Details[i].turns[3]		= 10;
+	Details[i].diameter[3]	= 250;
+}
+
 void setTheme(void)
 {
 	clearContent();
 	switch (workStep)
 	{
 		case 0: // wyświetla logo
-			showLogo();
+			SSD1306_DrawBitmap(0, 0, IMG_LOGO, 128, 64, 1);
 			workStep++;
 			SSD1306_UpdateScreen();
 			HAL_Delay(1000);
@@ -44,7 +130,7 @@ void setTheme(void)
 			showProjectSelectMenu();
 		break;
 		case 11:; // szczegoly projektu
-			Project Handler = getProjectStructByID(projectSelect);
+			ProjectManager Handler = Details[projectSelect];
 			showProjectDetails(&Handler);
 		break;
 		case 2: // ustawienie szerokości karkasu
@@ -70,20 +156,13 @@ void setTheme(void)
 	SSD1306_UpdateScreen();
 }
 
-// start - 0
-// -------------------------------------------------------------------------------------
-void showLogo(void)
-{
-	SSD1306_DrawBitmap(0, 0, logo, 128, 64, 1);
-}
-
 // wybór projektu - 1
 // -------------------------------------------------------------------------------------
 void showProjectSelectMenu(void)
 {
-	uint8_t side = 5;
-	uint8_t display = projectSelect;
-	uint8_t step = 0;
+	uint8_t leftMargin = 5; // left margin
+	uint8_t renderingBlock = projectSelect;
+	uint8_t renderingStep = 0;
 
 		if(projectSelect < 2)
 		{
@@ -93,37 +172,37 @@ void showProjectSelectMenu(void)
 		}
 		else
 		{
-			while(step < 2)
+			while(renderingStep < 2)
 			{
-				if(!step)
+				if(!renderingStep)
 				{
 					if(projectSelect % 2)
 					{
-						side = 68;
+						leftMargin = 68;
 					}
 					else
 					{
-						side = 5;
+						leftMargin = 5;
 					}
-					Project Handler = getProjectStructByID(display);
-					showProjectElements(&Handler, side);
+					Project Handler = getProjectStructByID(renderingBlock);
+					showProjectElements(&Handler, leftMargin);
 				}
 				else
 				{
 					if(projectSelect % 2)
 					{
-						display--;
-						side = 5;
+						renderingBlock--;
+						leftMargin = 5;
 					}
 					else
 					{
-						display++;
-						side = 68;
+						renderingBlock++;
+						leftMargin = 68;
 					}
-					Project Handler = getProjectStructByID(display);
-					showProjectElements(&Handler, side);
+					Project Handler = getProjectStructByID(renderingBlock);
+					showProjectElements(&Handler, leftMargin);
 				}
-				step++;
+				renderingStep++;
 			}
 		}
 }
@@ -190,12 +269,12 @@ void showProjectElements(Project * project, uint8_t margin)
 // szczegoly projektu - 11
 // -------------------------------------------------------------------------------------
 
-void showProjectDetails(Project * project)
+void showProjectDetails(ProjectManager * details)
 {
 
 	char width[10];
-	sprintf(width, "%i.%imm", project->width / 10, project->width % 10);
-	showLabelBar(project->fullName);
+	sprintf(width, "%i.%imm", details->width / 10, details->width % 10);
+	showLabelBar(details->fullName);
 	SSD1306_GotoXY(0, 20);
 	SSD1306_Puts(WIDTH_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 20);
@@ -203,28 +282,18 @@ void showProjectDetails(Project * project)
 	SSD1306_GotoXY(0, 31);
 	SSD1306_Puts(TASK_NO_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 31);
-	uint8_t count = countArray(project);
+	uint8_t count = countArray(details);
 	sprintf(width, "%i", count);
 	SSD1306_Puts(width, &Font_7x10, 1);
 
 	char * desc1;
 	char * desc2;
-	if(!project->desc1F)
-	{
-		desc1 = project->desc1;
-	}
-	else
-	{
-		desc1 = project->desc1F;
-	}
-	if(!project->desc2F)
-	{
-		desc2 = project->desc2;
-	}
-	else
-	{
-		desc2 = project->desc2F;
-	}
+	if(!details->descFull_1) desc1 = details->descShort_1;
+	else desc1 = &details->descFull_1;
+
+	if(!details->descFull_2) desc2 = details->descShort_2;
+	else desc2 = &details->descFull_2;
+
 	SSD1306_GotoXY(0, 42);
 	SSD1306_Puts(desc1, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 53);
@@ -233,71 +302,42 @@ void showProjectDetails(Project * project)
 
 // ustawianie wartosci - 2++
 // -------------------------------------------------------------------------------------
-void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t first)
+void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t runCount)
 {
 	char valueLettering[10];
-	uint8_t typeToken = type;
-	if(first) markerPosition = 0;
-	uint16_t preValue;
-
-	switch (typeToken)
+	if(runCount)
 	{
-		case 0:
-			if(first) {
-				SSD1306_DrawBitmap(0, 0, width, 128, 64, 1);
-				if(first == FIRST_RUN) intToArray_chVal(CARCASS_MIN_WIDTH);
-				else if(first == EDIT_RUN) intToArray_chVal(preValue);
-			}
-			else
-			{
-				if(runMode) changeValue(direction, markerPosition, CARCASS_MIN_WIDTH, CARCASS_MAX_WIDTH);
-				else moveMarker(4);
-			}
-			setMarkerPosition(1);
-			sprintf(valueLettering, "%i%i%i.%imm", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
-		break;
-		case 1:
-			if(first) {
-				SSD1306_DrawBitmap(0, 0, turns, 128, 64, 1);
-				if(first == FIRST_RUN) intToArray_chVal(CARCASS_MIN_TURNS);
-				else if(first == EDIT_RUN) intToArray_chVal(preValue);
-			}
-			else
-			{
-				if(runMode) changeValue(direction, markerPosition, CARCASS_MIN_TURNS, CARCASS_MAX_TURNS);
-				else moveMarker(4);
-			}
-			setMarkerPosition(0);
-			sprintf(valueLettering, "%i%i%i%izw.", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
-		break;
-		case 2:
-			if(first) {
-				SSD1306_DrawBitmap(0, 0, diameter, 128, 64, 1);
-				if(first == FIRST_RUN) intToArray_chVal(WINDING_MIN_DIAMETER);
-				else if(first == EDIT_RUN) intToArray_chVal(preValue);
-			}
-			else
-			{
-				if(runMode) changeValue(direction, markerPosition, WINDING_MIN_DIAMETER, WINDING_MAX_DIAMETER);
-				else moveMarker(3);
-			}
-			setMarkerPosition(2);
-			sprintf(valueLettering, "~%i.%i%imm", arrayToken[2], arrayToken[1], arrayToken[0]);
-		break;
-		case 3:
-			if(first) {
-				SSD1306_DrawBitmap(0, 0, speed, 128, 64, 1);
-				if(first == FIRST_RUN) intToArray_chVal(WINDING_MIN_SPEED);
-				else if(first == EDIT_RUN) intToArray_chVal(preValue);
-			}
-			else
-			{
-				if(runMode) changeValue(direction, markerPosition, WINDING_MIN_SPEED, WINDING_MAX_SPEED);
-				else moveMarker(1);
-			}
-			setMarkerPosition(0);
-			sprintf(valueLettering, "   %i", arrayToken[0]);
-		break;
+		markerPosition = 0;
+		switch (type)
+		{
+			case 0: SSD1306_DrawBitmap(0, 0, IMG_WIDTH, 128, 64, 1);
+				break;
+			case 1: SSD1306_DrawBitmap(0, 0, IMG_TURNS, 128, 64, 1);
+				break;
+			case 2: SSD1306_DrawBitmap(0, 0, IMG_DIAMETER, 128, 64, 1);
+				break;
+			case 3: SSD1306_DrawBitmap(0, 0, IMG_SPEED, 128, 64, 1);
+				break;
+		}
+		if(runCount == FIRST_RUN) intToArray_chVal(Settings[type].minValue);
+		else if(runCount == EDIT_RUN) intToArray_chVal(Settings[type].setValue);
+	}
+	else
+	{
+		if(runMode) changeValue(direction, markerPosition, Settings[type].minValue, Settings[type].maxValue);
+		else moveMarker(Settings[type].digitsCount);
+	}
+	setMarkerPosition(Settings[type].dotPosition);
+	switch (type)
+	{
+		case 0: sprintf(valueLettering, "%i%i%i.%imm", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
+			break;
+		case 1: sprintf(valueLettering, "%i%i%i%izw.", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
+			break;
+		case 2: sprintf(valueLettering, "~%i.%i%imm", arrayToken[2], arrayToken[1], arrayToken[0]);
+			break;
+		case 3: sprintf(valueLettering, "   %i", arrayToken[0]);
+			break;
 	}
 
 	clearValue();
@@ -430,12 +470,12 @@ void paginationBar(uint8_t pageBarWidth, uint8_t pageNo)
 	SSD1306_DrawFilledRectangle(pageBarMargin, 18, pageBarWidth, 3, 1);
 }
 
-uint8_t countArray(Project * project)
+uint8_t countArray(ProjectManager * details)
 {
 	uint8_t count = 0;
 	for(uint8_t i = 0; i<10; i++)
 	{
-		if(project->coil[i][0] > 0)
+		if(details->turns[i] > 0)
 		{
 			count++;
 		}
@@ -503,15 +543,9 @@ Project getProjectStructByID(uint8_t id)
 {
 	switch(id)
 	{
-		case 1:
-			return PeaveyC30_MAIN;
-		break;
-		case 2:
-			return PeaveyC30_SPK;
-		break;
-		case 3:
-			return Test_Trafo;
-		break;
+		case 1: return PeaveyC30_MAIN;
+		case 2: return PeaveyC30_SPK;
+		case 3: return Test_Trafo;
 	}
 	return Empty;
 }

@@ -29,6 +29,27 @@ typedef struct {
 	uint16_t	coil[10][2];
 } Project;
 
+typedef struct {
+	char		fullName[18];
+	char		shortName[7];
+	char		descShort_1[7];
+	char		descShort_2[7];
+	char		descFull_1;
+	char		descFull_2;
+	uint16_t	width;
+	uint16_t	turns[10];
+	uint16_t	diameter[10];
+} ProjectManager;
+
+typedef struct {
+	uint16_t	minValue;
+	uint16_t	setValue;
+	uint16_t	maxValue;
+	uint8_t		digitsCount;
+	uint8_t 	dotPosition;
+} Step;
+
+
 /* ENUM */
 //=============================
 
@@ -37,7 +58,7 @@ typedef enum {
 	CARCASS_WIDTH			= 0,	// ust. szer. karkasu
 	CARCASS_COIL_TURNS 		= 1, 	// ust. ilości zwojów
 	WINDING_DIAMETER 		= 2, 	// ust. ilości zwojów
-	WINDING_SPEED			= 3
+	WINDING_SPEED			= 3		// ust. predkosci nawijania
 } VALUE_TYPE;
 
 // SET VALUE
@@ -71,7 +92,7 @@ typedef enum {
 #define DISP_SET_WIDTH_LABEL	"Szer. karkasu:"
 #define DISP_SET_TURNS_LABEL	"Liczba zwojow:"
 #define DISP_SET_DIAMETER_LABEL	"Srednica uzw.:"
-#define DISP_SET_SPEED_LABEL	"Szybkosc:"
+#define DISP_SET_SPEED_LABEL	"Predkosc nawij.:"
 #define DISP_SET_SUMMARY_LABEL	"Podsumowanie:"
 
 /* project details */
@@ -81,11 +102,11 @@ typedef enum {
 //=============================
 /* FUNCTIONS */
 
+//-- LOAD STRUCT VALUES
+void structInit(void);
+
 //-- MAIN DISPLAY FUNCION
 void setTheme(); 													// wyswietla obraz w zaleznosci od wybranego kroku
-
-//-- START PAGE
-void showLogo(void); 												// START LOGO (0)
 
 //-- PROJECT SELECT PAGE (1)
 void showProjectElements(Project * project, uint8_t margin); 		// 5 - left; 68 - right // wyswietla kompletne menu wyboru projektu (1)
@@ -93,11 +114,11 @@ void showProjectSelectMenu(void); 									// pobiera strukture projektu i dobie
 void newTaskElement(void); 											// kafelek odpowiedzialny za wybór nowego zadania
 
 //-- PROJECT DETAILS (11)
-void showProjectDetails(Project * project);							// wyswietla szczegoly projektu
+void showProjectDetails(ProjectManager * details);					// wyswietla szczegoly projektu
 
 //-- VALUE SETTINGS (2++)
-void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t first);	// menu ustawien vartosci
-void setMarkerPosition(uint8_t divider); 							// rysuje wskaznik/trojkat pod ustawiana wartoscia
+void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t runCount);	// menu ustawien vartosci
+void setMarkerPosition(uint8_t divider); 							// ustawia marker/wskaznik na okreslone miejsce, w zaleznosci od polozenia kropki "divider"
 void moveMarker(uint8_t range);										// zwieksza markerPosition 0-4
 void changeValue(bool set, uint8_t position, uint16_t min, uint16_t max); // zwieksza lub zmniejsza cyfre 0-9
 uint16_t arrayToInt_chVal(void);									// zamienia arrayToken[] na integer
@@ -112,6 +133,6 @@ void showLabelBar(char* label); 									// wyswietla pasek z tytulem strony
 void clearContent(void); 											// czyści na wyswietlaczu obszar ponizej paska postepu
 void paginationBar(uint8_t pageBarWidth, uint8_t pageNo); 			// wyswietla pasek postepu - szerokosc pojedynczej strony, aktualna strona
 Project getProjectStructByID(uint8_t id); 							// zwraca strukture w zaleznosci od wybranego id
-uint8_t countArray(Project * project); 								// określa ilość zadań w danym projekcie
+uint8_t countArray(ProjectManager * details); 								// określa ilość zadań w danym projekcie
 
 #endif /* INC_SSD1306_ADDS_H_ */
