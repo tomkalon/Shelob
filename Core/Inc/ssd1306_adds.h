@@ -60,6 +60,7 @@ typedef enum {
 
 // FIRST RUN
 typedef enum {
+	EDIT_RUN			= 2,
 	FIRST_RUN 			= 1, 	// pierwsze uruchomienie
 	CONTI_RUN			= 0		// kontunuacja
 } RUN_FLAG;
@@ -95,7 +96,7 @@ void newTaskElement(void); 											// kafelek odpowiedzialny za wybór nowego
 void showProjectDetails(Project * project);							// wyswietla szczegoly projektu
 
 //-- VALUE SETTINGS (2++)
-void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, bool first);	// menu ustawien vartosci
+void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t first);	// menu ustawien vartosci
 void setMarkerPosition(uint8_t divider); 							// rysuje wskaznik/trojkat pod ustawiana wartoscia
 void moveMarker(uint8_t range);										// zwieksza markerPosition 0-4
 void changeValue(bool set, uint8_t position, uint16_t min, uint16_t max); // zwieksza lub zmniejsza cyfre 0-9
@@ -103,8 +104,8 @@ uint16_t arrayToInt_chVal(void);									// zamienia arrayToken[] na integer
 void intToArray_chVal(uint16_t value);								// zamienia integer na arrayToken[]
 void drawMarker(uint8_t width, uint8_t height); 					// rysuje trójkąt - wspołrzedne wskazuja wierzchołek
 void clearMarker(void); 											// usuwa wskaznik/trojkat
-void clearValue(void);												// usuwa liczbe/wartosci
-void clearSettings(void);											// przygotowuje pod nowe ustawienia / czysci wczesniejsze wartosci
+void clearValue(void);												// usuwa liczbe/wartosci										// przygotowuje pod nowe ustawienia / czysci wczesniejsze wartosci
+
 
 //-- UNIVERSAL FUNCTIONS
 void showLabelBar(char* label); 									// wyswietla pasek z tytulem strony

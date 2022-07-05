@@ -32,6 +32,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+// TIM6
+#define	PRESS_BTN_TIME 15	// dlugosc wcisniecia przycisku do zapisania danych
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,29 +47,23 @@
 
 /* USER CODE BEGIN PV */
 
+// MAIN INTERFACE VAR's
+extern volatile uint8_t workStep;  // Wskazuje aktualny krok w ustawieniach
+extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
+
 // UART
-uint8_t usart2data; 					// znaki odbierane przez UART'a
 
 // TIM2
-volatile uint16_t 	encoderCount;				 	// aktualne polozenie enkodera
-volatile uint16_t 	encoderCountPrev 	= 16000; 	// poprzednie polozenie enkodera
+volatile uint16_t encoderCount		= 0;	// aktualne polozenie enkodera
+uint16_t encoderCountPrev 			= 16000; 	// poprzednie polozenie enkodera
 
 // TIM6
-volatile uint8_t 	pressBtnCounter		= 0;	// licznik czasu wcisniecia przycisku
-const 	 uint8_t	PRESS_BTN_TIME		= 15;	// dlugosc wcisniecia przycisku do zapisania danych
+static volatile uint8_t pressBtnCounter		= 0;	// licznik czasu wcisniecia przycisku
 
 // TIM7
 
-// MENU PRZYGOTOWANIA I KONFIGURACJI PROJEKTU
-extern volatile uint8_t workStep;		// Wskazuje aktualny krok w ustawieniach
-extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
-
-#ifndef PROJECT_COUNT
-#define PROJECT_COUNT 3
-#endif
-
-// GLOWNE ZMIENNE
-volatile uint8_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;
+// MAIN VAR
+static volatile uint16_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;
 
 /* USER CODE END PV */
 
@@ -115,8 +113,7 @@ int main(void)
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
   // USART & TIMERS
-  HAL_UART_Receive_IT(&huart2, &usart2data, 1);
-  printUART((unsigned char*)"Running...");
+  printUART("Running...\r\n");
   // display initialization
   SSD1306_Init();
   SSD1306_SetContrast(0);
@@ -192,17 +189,13 @@ void SystemClock_Config(void)
 // =========================================================================================
 /* UART */
 // =========================================================================================
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+/* void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance==USART2)
 	{
-		if(usart2data == '\r')
-		{
-			printUART((uint8_t *) "Connected");
-		}
-		HAL_UART_Receive_IT(&huart2, &usart2data, 1);
+
 	}
-}
+} */
 
 // =========================================================================================
 /* TIMERS - ENCODER */
@@ -240,56 +233,28 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(!btnBusyFlag)
 		{
 			HAL_TIM_Base_Start_IT(&htim6);
-			switch(workStep)
+			pressBtnCounter++;
+			if(pressBtnCounter > PRESS_BTN_TIME)
 			{
-				case 2: // step 2
-					pressBtnCounter++;
-					if(pressBtnCounter > PRESS_BTN_TIME)
-					{
-						width_MAIN = arrayToInt_chVal();
-						workStep = 3;
-						pressBtnCounter = 0;
-						HAL_TIM_Base_Stop_IT(&htim6);
-						clearSettings();
-						setTheme();
-					}
-				break;
-				case 3: // step 3
-					pressBtnCounter++;
-					if(pressBtnCounter > PRESS_BTN_TIME)
-					{
-						turns_MAIN = arrayToInt_chVal();
-						workStep = 4;
-						pressBtnCounter = 0;
-						HAL_TIM_Base_Stop_IT(&htim6);
-						clearSettings();
-						setTheme();
-					}
-				break;
-				case 4: // step 4
-					pressBtnCounter++;
-					if(pressBtnCounter > PRESS_BTN_TIME)
-					{
-						diameter_MAIN = arrayToInt_chVal();
-						workStep = 5;
-						pressBtnCounter = 0;
-						HAL_TIM_Base_Stop_IT(&htim6);
-						clearSettings();
-						setTheme();
-					}
-				break;
-				case 5: // step 5
-					pressBtnCounter++;
-					if(pressBtnCounter > PRESS_BTN_TIME)
-					{
-						speed_MAIN = arrayToInt_chVal();
-						workStep = 6;
-						pressBtnCounter = 0;
-						HAL_TIM_Base_Stop_IT(&htim6);
-						clearSettings();
-						setTheme();
-					}
-				break;
+				HAL_TIM_Base_Stop_IT(&htim6);
+				switch(workStep)
+				{
+					case 2: // step 2
+							width_MAIN = arrayToInt_chVal();
+					break;
+					case 3: // step 3
+							turns_MAIN = arrayToInt_chVal();
+					break;
+					case 4: // step 4
+							diameter_MAIN = arrayToInt_chVal();
+					break;
+					case 5: // step 5
+							speed_MAIN = arrayToInt_chVal();
+					break;
+				}
+				pressBtnCounter = 0;
+				workStep++;
+				setTheme();
 			}
 		}
 		if(btnBusyFlag)

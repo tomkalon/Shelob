@@ -1,2 +1,1 @@
 ../Core/Src/misc.c:11:6:printUART	24	static
-../Core/Src/misc.c:18:6:printUART_INT	48	static

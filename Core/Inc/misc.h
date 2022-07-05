@@ -24,7 +24,6 @@ extern C {
 #include "gpio.h"
 
 // UART
-void printUART(unsigned char str[]);
-void printUART_INT(uint16_t integer);
+void printUART(unsigned char * str);
 
 #endif /* INC_MISC_H_ */

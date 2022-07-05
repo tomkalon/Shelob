@@ -9,17 +9,17 @@
 #include "ssd1306_bitmaps.h"
 
 // CONST
-#define PROJECT_COUNT 3 			// liczba zapisanych projektów
+const uint8_t PROJECT_COUNT = 3; 		// liczba zapisanych projektów
 
 // VAR
-volatile uint8_t workStep			= 0;
-volatile uint8_t projectSelect 		= 0; 			// wybrany/wybierany projekt z listy projektow
+volatile uint8_t workStep		= 0;  	// Wskazuje aktualny krok w ustawieniach
+volatile uint8_t projectSelect	= 0;  	// Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
 
-volatile uint8_t progressBarWidth	= 0; 			// szerokosc wskaznika stron
-volatile uint8_t progressBarStep	= 0; 			// polozenie wskaznika stron
+uint8_t progressBarWidth		= 0; 	// szerokosc wskaznika stron
+uint8_t progressBarStep			= 0; 	// polozenie wskaznika stron
 
 //markery wyboru
-volatile int8_t markerPosition 		= 0; 			// polozenie wskaznika ustawianej wartosci
+int8_t markerPosition 				= 0; 			// polozenie wskaznika ustawianej wartosci
 volatile int8_t arrayToken[5] 		= {0,0,0,0,0};	// ustawianie wartosci
 
 void setTheme(void)
@@ -60,7 +60,7 @@ void setTheme(void)
 			showValueScreen(WINDING_DIAMETER, 0, 0, FIRST_RUN);
 		break;
 		case 5: // szybkosc nawijania
-			showLabelBar(DISP_SET_DIAMETER_LABEL);
+			showLabelBar(DISP_SET_SPEED_LABEL);
 			showValueScreen(WINDING_SPEED, 0, 0, FIRST_RUN);
 		break;
 		case 6: // podsumowanie
@@ -233,22 +233,25 @@ void showProjectDetails(Project * project)
 
 // ustawianie wartosci - 2++
 // -------------------------------------------------------------------------------------
-void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, bool first)
+void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t first)
 {
 	char valueLettering[10];
 	uint8_t typeToken = type;
+	if(first) markerPosition = 0;
+	uint16_t preValue;
 
 	switch (typeToken)
 	{
 		case 0:
 			if(first) {
 				SSD1306_DrawBitmap(0, 0, width, 128, 64, 1);
-				intToArray_chVal(CARCASS_MIN_WIDTH);
+				if(first == FIRST_RUN) intToArray_chVal(CARCASS_MIN_WIDTH);
+				else if(first == EDIT_RUN) intToArray_chVal(preValue);
 			}
 			else
 			{
-				if(runMode) {changeValue(direction, markerPosition, CARCASS_MIN_WIDTH, CARCASS_MAX_WIDTH);}
-				else{moveMarker(4);}
+				if(runMode) changeValue(direction, markerPosition, CARCASS_MIN_WIDTH, CARCASS_MAX_WIDTH);
+				else moveMarker(4);
 			}
 			setMarkerPosition(1);
 			sprintf(valueLettering, "%i%i%i.%imm", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
@@ -256,12 +259,13 @@ void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, bool firs
 		case 1:
 			if(first) {
 				SSD1306_DrawBitmap(0, 0, turns, 128, 64, 1);
-				intToArray_chVal(CARCASS_MIN_TURNS);
+				if(first == FIRST_RUN) intToArray_chVal(CARCASS_MIN_TURNS);
+				else if(first == EDIT_RUN) intToArray_chVal(preValue);
 			}
 			else
 			{
-				if(runMode) {changeValue(direction, markerPosition, CARCASS_MIN_TURNS, CARCASS_MAX_TURNS);}
-				else{moveMarker(4);}
+				if(runMode) changeValue(direction, markerPosition, CARCASS_MIN_TURNS, CARCASS_MAX_TURNS);
+				else moveMarker(4);
 			}
 			setMarkerPosition(0);
 			sprintf(valueLettering, "%i%i%i%izw.", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
@@ -269,12 +273,13 @@ void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, bool firs
 		case 2:
 			if(first) {
 				SSD1306_DrawBitmap(0, 0, diameter, 128, 64, 1);
-				intToArray_chVal(WINDING_MIN_DIAMETER);
+				if(first == FIRST_RUN) intToArray_chVal(WINDING_MIN_DIAMETER);
+				else if(first == EDIT_RUN) intToArray_chVal(preValue);
 			}
 			else
 			{
-				if(runMode) {changeValue(direction, markerPosition, WINDING_MIN_DIAMETER, WINDING_MAX_DIAMETER);}
-				else{moveMarker(3);}
+				if(runMode) changeValue(direction, markerPosition, WINDING_MIN_DIAMETER, WINDING_MAX_DIAMETER);
+				else moveMarker(3);
 			}
 			setMarkerPosition(2);
 			sprintf(valueLettering, "~%i.%i%imm", arrayToken[2], arrayToken[1], arrayToken[0]);
@@ -282,12 +287,13 @@ void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, bool firs
 		case 3:
 			if(first) {
 				SSD1306_DrawBitmap(0, 0, speed, 128, 64, 1);
-				intToArray_chVal(WINDING_MIN_SPEED);
+				if(first == FIRST_RUN) intToArray_chVal(WINDING_MIN_SPEED);
+				else if(first == EDIT_RUN) intToArray_chVal(preValue);
 			}
 			else
 			{
-				if(runMode) {changeValue(direction, markerPosition, WINDING_MIN_SPEED, WINDING_MAX_SPEED);}
-				else{moveMarker(1);}
+				if(runMode) changeValue(direction, markerPosition, WINDING_MIN_SPEED, WINDING_MAX_SPEED);
+				else moveMarker(1);
 			}
 			setMarkerPosition(0);
 			sprintf(valueLettering, "   %i", arrayToken[0]);
@@ -401,12 +407,6 @@ void clearMarker(void)
 void clearValue(void)
 {
 	SSD1306_DrawFilledRectangle(20, 20, 100, 18, 0);
-}
-
-void clearSettings(void)
-{
-	intToArray_chVal(CARCASS_MIN_TURNS);
-	markerPosition = 0;
 }
 
 // uniwersalne
