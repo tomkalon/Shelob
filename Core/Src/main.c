@@ -18,6 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "i2c.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -55,7 +59,7 @@ extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w 
 
 // TIM2
 volatile uint16_t encoderCount		= 0;	// aktualne polozenie enkodera
-uint16_t encoderCountPrev 			= 16000; 	// poprzednie polozenie enkodera
+volatile uint16_t encoderCountPrev 			= 16000; 	// poprzednie polozenie enkodera
 
 // TIM6
 static volatile uint8_t pressBtnCounter		= 0;	// licznik czasu wcisniecia przycisku
@@ -154,7 +158,10 @@ void SystemClock_Config(void)
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLLMUL_4;
+  RCC_OscInitStruct.PLL.PLLDIV = RCC_PLLDIV_2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -164,7 +171,7 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -180,6 +187,10 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+  /** Enables the Clock Security System
+  */
+  HAL_RCC_EnableCSS();
 }
 
 /* USER CODE BEGIN 4 */
@@ -240,17 +251,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				switch(workStep)
 				{
 					case 2: // step 2
-							width_MAIN = arrayToInt_chVal();
-					break;
+						width_MAIN = arrayToInt_chVal();
+						break;
 					case 3: // step 3
-							turns_MAIN = arrayToInt_chVal();
-					break;
+						turns_MAIN = arrayToInt_chVal();
+						break;
 					case 4: // step 4
-							diameter_MAIN = arrayToInt_chVal();
-					break;
+						diameter_MAIN = arrayToInt_chVal();
+						break;
 					case 5: // step 5
-							speed_MAIN = arrayToInt_chVal();
-					break;
+						speed_MAIN = arrayToInt_chVal();
+						break;
 				}
 				pressBtnCounter = 0;
 				workStep++;
@@ -272,24 +283,24 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					{
 						workStep = 11;
 					}
-				setTheme();
-				break;
+					setTheme();
+					break;
 				case 11: // step 11
 					workStep = 1;
 					setTheme();
-				break;
+					break;
 				case 2: // step 2
 					showValueScreen(CARCASS_WIDTH, VALUE_NO_CHANGING, 0, CONTI_RUN);
-				break;
+					break;
 				case 3: // step 3
 					showValueScreen(CARCASS_COIL_TURNS, VALUE_NO_CHANGING, 0, CONTI_RUN);
-				break;
+					break;
 				case 4: // step 4
 					showValueScreen(WINDING_DIAMETER, VALUE_NO_CHANGING, 0, CONTI_RUN);
-				break;
+					break;
 				case 5: // step 5
 					showValueScreen(WINDING_SPEED, VALUE_NO_CHANGING, 0, CONTI_RUN);
-				break;
+					break;
 			}
 		}
 	}
@@ -331,19 +342,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 						}
 					}
 					setTheme();
-				break;
+					break;
 				case 2: // step 2
 					showValueScreen(CARCASS_WIDTH, VALUE_CHANGING, direction, CONTI_RUN);
-				break;
+					break;
 				case 3: // step 3
 					showValueScreen(CARCASS_COIL_TURNS, VALUE_CHANGING, direction, CONTI_RUN);
-				break;
+					break;
 				case 4: // step 4
 					showValueScreen(WINDING_DIAMETER, VALUE_CHANGING, direction, CONTI_RUN);
-				break;
+					break;
 				case 5: // step 4
 					showValueScreen(WINDING_SPEED, VALUE_CHANGING, direction, CONTI_RUN);
-				break;
+					break;
 			}
 		}
 	}

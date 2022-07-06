@@ -21,21 +21,10 @@ extern C {
 typedef struct {
 	char		*fullName;
 	char		*shortName;
-	char		*desc1;
-	char		*desc2;
-	char		*desc1F;
-	char		*desc2F;
-	uint16_t	width;
-	uint16_t	coil[10][2];
-} Project;
-
-typedef struct {
-	char		fullName[18];
-	char		shortName[7];
-	char		descShort_1[7];
-	char		descShort_2[7];
-	char		descFull_1;
-	char		descFull_2;
+	char		*descShort_1;
+	char		*descShort_2;
+	char		*descFull_1;
+	char		*descFull_2;
 	uint16_t	width;
 	uint16_t	turns[10];
 	uint16_t	diameter[10];
@@ -109,7 +98,7 @@ void structInit(void);
 void setTheme(); 													// wyswietla obraz w zaleznosci od wybranego kroku
 
 //-- PROJECT SELECT PAGE (1)
-void showProjectElements(Project * project, uint8_t margin); 		// 5 - left; 68 - right // wyswietla kompletne menu wyboru projektu (1)
+void showProjectElements(ProjectManager * details, uint8_t margin); 		// 5 - left; 68 - right // wyswietla kompletne menu wyboru projektu (1)
 void showProjectSelectMenu(void); 									// pobiera strukture projektu i dobiera marginesy
 void newTaskElement(void); 											// kafelek odpowiedzialny za wybór nowego zadania
 
@@ -132,7 +121,6 @@ void clearValue(void);												// usuwa liczbe/wartosci										// przygotow
 void showLabelBar(char* label); 									// wyswietla pasek z tytulem strony
 void clearContent(void); 											// czyści na wyswietlaczu obszar ponizej paska postepu
 void paginationBar(uint8_t pageBarWidth, uint8_t pageNo); 			// wyswietla pasek postepu - szerokosc pojedynczej strony, aktualna strona
-Project getProjectStructByID(uint8_t id); 							// zwraca strukture w zaleznosci od wybranego id
-uint8_t countArray(ProjectManager * details); 								// określa ilość zadań w danym projekcie
+uint8_t countArray(ProjectManager * details); 						// określa ilość zadań w danym projekcie
 
 #endif /* INC_SSD1306_ADDS_H_ */

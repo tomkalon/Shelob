@@ -67,10 +67,12 @@ void structInit(void)
 	// PROJECT
 	// ============================================================
 	//PROJECT - PEAVEY CLASSIC 30 - MAIN TRANSFORMER
-	strcpy(Details[i].fullName, "Peavey-C30-Main");
-	strcpy(Details[i].shortName, "P-C30-M");
-	strcpy(Details[i].descShort_1, "230V");
-	strcpy(Details[i].descShort_2, "270V, 30V");
+	Details[i].fullName		= "Peavey-C30-Main";
+	Details[i].shortName	= "P-C30-M";
+	Details[i].descShort_1	= "230V";
+	Details[i].descShort_2	= "270,30V";
+	Details[i].descFull_1	= "PRI: 230V";
+	Details[i].descFull_2 	= "SEC: 230V, 30V";
 	Details[i].width		= 1150;
 	Details[i].turns[0]		= 1100;
 	Details[i].diameter[0]	= 10;
@@ -81,10 +83,12 @@ void structInit(void)
 	i++;
 
 	//PROJECT - PEAVEY CLASSIC 30 - SPEAKER TRANSFORMER
-	strcpy(Details[i].fullName, "Peavey-C30-SPK");
-	strcpy(Details[i].shortName, "P-C30-S");
-	strcpy(Details[i].descShort_1, "4XEL84");
-	strcpy(Details[i].descShort_2, "16 Ohms");
+	Details[i].fullName 	= "Peavey-C30-SPK";
+	Details[i].shortName	= "P-C30-S";
+	Details[i].descShort_1	= "4xEL84";
+	Details[i].descShort_2	= "16 Ohms";
+	Details[i].descFull_1	= "4xEL84 | 3.4k";
+	Details[i].descFull_2 	= "OUT: 16 Ohms";
 	Details[i].width		= 650;
 	Details[i].turns[0]		= 900;
 	Details[i].diameter[0]	= 20;
@@ -93,10 +97,12 @@ void structInit(void)
 	i++;
 
 	//PROJECT - TEST
-	strcpy(Details[i].fullName, "TEST-FULL");
-	strcpy(Details[i].shortName, "TEST-SH");
-	strcpy(Details[i].descShort_1, "2XEL84");
-	strcpy(Details[i].descShort_2, "4-8-16");
+	Details[i].fullName 	= "TEST-FULL";
+	Details[i].shortName	= "TEST-SH";
+	Details[i].descShort_1	= "2XEL84";
+	Details[i].descShort_2	= "4-8-16";
+	Details[i].descFull_1	= "2XEL84 | 8.2k";
+	Details[i].descFull_2 	= "OUT: 4-8-16 Ohms";
 	Details[i].width		= 800;
 	Details[i].turns[0]		= 2500;
 	Details[i].diameter[0]	= 250;
@@ -121,37 +127,37 @@ void setTheme(void)
 			SSD1306_Clear();
 			SSD1306_UpdateScreen();
 			setTheme();
-		break;
+			break;
 		case 1: // wybór projektu - nowy lub istniejacy
 			showLabelBar(DISP_PROJECT_LABEL);
 			progressBarWidth = (128 / ((PROJECT_COUNT + 1) / 2) + ((PROJECT_COUNT + 1) % 2));
 			progressBarStep = projectSelect / 2;
 			paginationBar(progressBarWidth, progressBarStep);
 			showProjectSelectMenu();
-		break;
+			break;
 		case 11:; // szczegoly projektu
-			ProjectManager Handler = Details[projectSelect];
+			ProjectManager Handler = Details[projectSelect - 1];
 			showProjectDetails(&Handler);
-		break;
+			break;
 		case 2: // ustawienie szerokości karkasu
 			showLabelBar(DISP_SET_WIDTH_LABEL);
 			showValueScreen(CARCASS_WIDTH, 0, 0, FIRST_RUN);
-		break;
+			break;
 		case 3: // ustawienie ilosci zwojow
 			showLabelBar(DISP_SET_TURNS_LABEL);
 			showValueScreen(CARCASS_COIL_TURNS, 0, 0, FIRST_RUN);
-		break;
+			break;
 		case 4: // srednica uzwojenia
 			showLabelBar(DISP_SET_DIAMETER_LABEL);
 			showValueScreen(WINDING_DIAMETER, 0, 0, FIRST_RUN);
-		break;
+			break;
 		case 5: // szybkosc nawijania
 			showLabelBar(DISP_SET_SPEED_LABEL);
 			showValueScreen(WINDING_SPEED, 0, 0, FIRST_RUN);
-		break;
+			break;
 		case 6: // podsumowanie
 			showLabelBar(DISP_SET_SUMMARY_LABEL);
-		break;
+			break;
 	}
 	SSD1306_UpdateScreen();
 }
@@ -161,13 +167,13 @@ void setTheme(void)
 void showProjectSelectMenu(void)
 {
 	uint8_t leftMargin = 5; // left margin
-	uint8_t renderingBlock = projectSelect;
+	uint8_t renderingBlock = projectSelect - 1;
 	uint8_t renderingStep = 0;
 
 		if(projectSelect < 2)
 		{
 			newTaskElement();
-			Project Handler = getProjectStructByID(1);
+			ProjectManager Handler = Details[0];
 			showProjectElements(&Handler, 69);
 		}
 		else
@@ -184,7 +190,7 @@ void showProjectSelectMenu(void)
 					{
 						leftMargin = 5;
 					}
-					Project Handler = getProjectStructByID(renderingBlock);
+					ProjectManager Handler = Details[renderingBlock];
 					showProjectElements(&Handler, leftMargin);
 				}
 				else
@@ -199,7 +205,7 @@ void showProjectSelectMenu(void)
 						renderingBlock++;
 						leftMargin = 68;
 					}
-					Project Handler = getProjectStructByID(renderingBlock);
+					ProjectManager Handler = Details[renderingBlock];
 					showProjectElements(&Handler, leftMargin);
 				}
 				renderingStep++;
@@ -227,7 +233,7 @@ void newTaskElement(void)
 	SSD1306_Puts("zadanie", &Font_7x10, color);
 }
 
-void showProjectElements(Project * project, uint8_t margin)
+void showProjectElements(ProjectManager * details, uint8_t margin)
 {
 	bool color = 0;
 	if(margin == 5)
@@ -259,11 +265,11 @@ void showProjectElements(Project * project, uint8_t margin)
 	}
 	margin += 4;
 	SSD1306_GotoXY(margin, 29);
-	SSD1306_Puts(project->shortName, &Font_7x10, color);
+	SSD1306_Puts(details->shortName, &Font_7x10, color);
 	SSD1306_GotoXY(margin, 40);
-	SSD1306_Puts(project->desc1, &Font_7x10, color);
+	SSD1306_Puts(details->descShort_1, &Font_7x10, color);
 	SSD1306_GotoXY(margin, 51);
-	SSD1306_Puts(project->desc2, &Font_7x10, color);
+	SSD1306_Puts(details->descShort_2, &Font_7x10, color);
 }
 
 // szczegoly projektu - 11
@@ -285,19 +291,10 @@ void showProjectDetails(ProjectManager * details)
 	uint8_t count = countArray(details);
 	sprintf(width, "%i", count);
 	SSD1306_Puts(width, &Font_7x10, 1);
-
-	char * desc1;
-	char * desc2;
-	if(!details->descFull_1) desc1 = details->descShort_1;
-	else desc1 = &details->descFull_1;
-
-	if(!details->descFull_2) desc2 = details->descShort_2;
-	else desc2 = &details->descFull_2;
-
 	SSD1306_GotoXY(0, 42);
-	SSD1306_Puts(desc1, &Font_7x10, 1);
+	SSD1306_Puts(details->descFull_1, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 53);
-	SSD1306_Puts(desc2, &Font_7x10, 1);
+	SSD1306_Puts(details->descFull_2, &Font_7x10, 1);
 }
 
 // ustawianie wartosci - 2++
@@ -481,71 +478,4 @@ uint8_t countArray(ProjectManager * details)
 		}
 	}
 	return count;
-}
-
-// struktury
-// -------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------
-Project PeaveyC30_MAIN =
-{
-	"Peavey-C30-Main",
-	"P-C30-M",
-	"230V",
-	"270,30V",
-	0,
-	"270V, 30V",
-	1155,
-	{
-		{1100, 0.1}, {500, 0.55},
-	}
-};
-Project PeaveyC30_SPK =
-{
-	"Peavey-C30-SPK",
-	"PC30-S",
-	"4xEL84",
-	"16 Ohm",
-	0,
-	0,
-	65,
-	{
-		{1200, 0.2}, {600, 0.65}, {300, 0.8},
-	}
-};
-Project Test_Trafo =
-{
-	"Test",
-	"Test",
-	"2xEL84",
-	"4-8-16",
-	0,
-	"4-8-16 Ohm",
-	100,
-	{
-		{1300, 0.3}, {700, 0.75},
-	}
-};
-
-Project Empty =
-{
-	"",
-	"",
-	"",
-	"",
-	0,
-	0,
-	0,
-	{{}}
-};
-
-Project getProjectStructByID(uint8_t id)
-{
-	switch(id)
-	{
-		case 1: return PeaveyC30_MAIN;
-		case 2: return PeaveyC30_SPK;
-		case 3: return Test_Trafo;
-	}
-	return Empty;
 }
