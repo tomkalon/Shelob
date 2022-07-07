@@ -115,14 +115,11 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_TIM2_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-  // USART & TIMERS
-  printUART("Running...\r\n");
   // display initialization
   SSD1306_Init();
   SSD1306_SetContrast(0);
@@ -201,18 +198,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* **********************************************IRQ************************************* */
-
-// =========================================================================================
-/* UART */
-// =========================================================================================
-/* void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	if(huart->Instance==USART2)
-	{
-
-	}
-} */
-
 // =========================================================================================
 /* TIMERS - ENCODER */
 // =========================================================================================
