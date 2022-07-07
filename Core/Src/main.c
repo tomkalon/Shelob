@@ -38,7 +38,7 @@
 /* USER CODE BEGIN PD */
 
 // TIM6
-#define	PRESS_BTN_TIME 17	// dlugosc wcisniecia przycisku do zapisania danych
+#define	PRESS_BTN_TIME 10	// dlugosc wcisniecia przycisku do zapisania danych
 
 /* USER CODE END PD */
 
@@ -51,9 +51,14 @@
 
 /* USER CODE BEGIN PV */
 
+// NUMBER OF SAVED PROJECTS
+extern const uint8_t PROJECT_COUNT;
+
 // MAIN INTERFACE VAR's
-extern volatile uint8_t workStep;  // Wskazuje aktualny krok w ustawieniach
+extern volatile uint8_t workStep;  		// Wskazuje aktualny krok w ustawieniach
 extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
+extern volatile uint8_t selector;		// selektor roboczy, menu wyboru
+extern volatile bool correctionFlag;	// informuje, czy dane edytowane w trybie poprawiania
 
 // UART
 
@@ -232,7 +237,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 // =========================================================================================
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-
 	// ========================
 	/* TIM6 - CLICK BUFFOR */
 	// ========================
@@ -243,7 +247,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(!btnBusyFlag)
 		{
 			HAL_TIM_Base_Start_IT(&htim6);
-			if(workStep >= 2 && workStep <=5) pressBtnCounter++;
+			if((workStep >= 2 && workStep <=5) || (workStep == 61)) pressBtnCounter++;
 			if(pressBtnCounter > PRESS_BTN_TIME)
 			{
 				HAL_TIM_Base_Stop_IT(&htim6);
@@ -252,26 +256,38 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				{
 					case 2:
 						width_MAIN = arrayToInt_chVal();
+						saveSetValue(width_MAIN);
 						break;
 					case 3:
 						turns_MAIN = arrayToInt_chVal();
+						saveSetValue(turns_MAIN);
 						break;
 					case 4:
 						diameter_MAIN = arrayToInt_chVal();
+						saveSetValue(diameter_MAIN);
 						break;
 					case 5:
 						speed_MAIN = arrayToInt_chVal();
+						saveSetValue(speed_MAIN);
 						break;
 					case 61:
 						exception = 1;
+						if(!selector) workStep = 7;
+						else
+						{
+							workStep = 2;
+							correctionFlag = 1;
+						}
+						selector = 0;
 						break;
 				}
-				pressBtnCounter = 0;
 				if(!exception)
 				{
 					workStep++;
-					setTheme();
+
 				}
+				pressBtnCounter = 0;
+				setTheme();
 			}
 		}
 		if(btnBusyFlag)
@@ -352,18 +368,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					}
 					setTheme();
 					break;
-				case 2: // step 2
+				case 2:
 					showValueScreen(CARCASS_WIDTH, VALUE_CHANGING, direction, CONTI_RUN);
 					break;
-				case 3: // step 3
+				case 3:
 					showValueScreen(CARCASS_COIL_TURNS, VALUE_CHANGING, direction, CONTI_RUN);
 					break;
-				case 4: // step 4
+				case 4:
 					showValueScreen(WINDING_DIAMETER, VALUE_CHANGING, direction, CONTI_RUN);
 					break;
-				case 5: // step 4
+				case 5:
 					showValueScreen(WINDING_SPEED, VALUE_CHANGING, direction, CONTI_RUN);
 					break;
+				case 61:
+					correctnessQuery(direction, CONTI_RUN);
+					break;
+
 			}
 		}
 	}

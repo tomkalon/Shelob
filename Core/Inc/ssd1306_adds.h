@@ -75,6 +75,13 @@ typedef enum {
 	CONTI_RUN			= 0		// kontunuacja
 } RUN_FLAG;
 
+// BOX_POSITION
+typedef enum {
+	BOX_LEFT			= 5,	// LEFT
+	BOX_RIGHT			= 68 	// RIGHT
+
+} BOX_POSITION;
+
 /* CONST */
 //=============================
 #define DISP_PROJECT_LABEL		"Wybierz projekt:"
@@ -83,14 +90,19 @@ typedef enum {
 #define DISP_SET_DIAMETER_LABEL	"Srednica uzw.:"
 #define DISP_SET_SPEED_LABEL	"Predkosc nawij.:"
 #define DISP_SET_SUMMARY_LABEL	"Podsumowanie:"
-#define DISP_CORRECTNESS_QUERY		"Chcesz poprawic?"
+#define DISP_CORRECTNESS_QUERY	"Poprawne?"
 
-/* project details */
+/* details */
 #define WIDTH_LABEL  			"Szerokosc: "
 #define TURNS_LABEL				"Ilosc: "
 #define DIAMETER_LABEL			"Srednica: "
 #define SPEED_LABEL				"Predkosc:"
 #define TASK_NO_LABEL 			"L. zadan: "
+
+/* selector */
+#define YES_LABEL				"TAK"
+#define NO_LABEL				"NIE"
+
 
 //=============================
 /* FUNCTIONS */
@@ -116,6 +128,7 @@ void moveMarker(uint8_t range);										// zwieksza markerPosition 0-4
 void changeValue(bool set, uint8_t position, uint16_t min, uint16_t max); // zwieksza lub zmniejsza cyfre 0-9
 uint16_t arrayToInt_chVal(void);									// zamienia arrayToken[] na integer
 void intToArray_chVal(uint16_t value);								// zamienia integer na arrayToken[]
+void saveSetValue(uint16_t value);									// zapamietuje wybrane dane na wypadek koniecznosci poprawki
 void drawMarker(uint8_t width, uint8_t height); 					// rysuje trójkąt - wspołrzedne wskazuja wierzchołek
 void clearMarker(void); 											// usuwa wskaznik/trojkat
 void clearValue(void);
@@ -124,7 +137,8 @@ void clearValue(void);
 void showSummary(void);												// podsumowanie ustawień
 
 //-- CORRECTNESS QUERY (61)
-void correctnessQuery(void);										// zatwierdzenie ustawien
+void correctnessQuery(bool direction, uint8_t runCount);			// zatwierdzenie ustawien
+bool showSelectBoxes(uint8_t margin, uint8_t pointer);				// okienko wyboru
 
 //-- UNIVERSAL FUNCTIONS
 void showLabelBar(char* label); 									// wyswietla pasek z tytulem strony

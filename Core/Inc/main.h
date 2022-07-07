@@ -41,7 +41,7 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-extern const uint8_t PROJECT_COUNT;
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

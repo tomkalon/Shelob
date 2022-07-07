@@ -17,6 +17,7 @@ extern volatile uint16_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;
 // VAR
 volatile uint8_t workStep		= 0;  	// Wskazuje aktualny krok w ustawieniach
 volatile uint8_t projectSelect	= 0;  	// Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
+volatile uint8_t correctionFlag = 0;	// informuje, czy dane edytowane w trybie poprawiania
 
 uint8_t progressBarWidth		= 0; 	// szerokosc wskaznika stron
 uint8_t progressBarStep			= 0; 	// polozenie wskaznika stron
@@ -24,6 +25,9 @@ uint8_t progressBarStep			= 0; 	// polozenie wskaznika stron
 // CHANGE VALUE
 int8_t markerPosition 				= 0; 			// polozenie wskaznika ustawianej wartosci
 volatile int8_t arrayToken[5] 		= {0,0,0,0,0};	// ustawianie wartosci
+
+// YES/NO QUERY
+volatile uint8_t selector = 0;
 
 // STRUCT
 ProjectManager Details[4];
@@ -144,19 +148,23 @@ void setTheme(void)
 			break;
 		case 2: // ustawienie szerokości karkasu
 			showLabelBar(DISP_SET_WIDTH_LABEL);
-			showValueScreen(CARCASS_WIDTH, 0, 0, FIRST_RUN);
+			if(!correctionFlag) showValueScreen(CARCASS_WIDTH, 0, 0, FIRST_RUN);
+			else showValueScreen(CARCASS_WIDTH, 0, 0, EDIT_RUN);
 			break;
 		case 3: // ustawienie ilosci zwojow
 			showLabelBar(DISP_SET_TURNS_LABEL);
-			showValueScreen(CARCASS_COIL_TURNS, 0, 0, FIRST_RUN);
+			if(!correctionFlag) showValueScreen(CARCASS_COIL_TURNS, 0, 0, FIRST_RUN);
+			else showValueScreen(CARCASS_COIL_TURNS, 0, 0, EDIT_RUN);
 			break;
 		case 4: // srednica uzwojenia
 			showLabelBar(DISP_SET_DIAMETER_LABEL);
-			showValueScreen(WINDING_DIAMETER, 0, 0, FIRST_RUN);
+			if(!correctionFlag) showValueScreen(WINDING_DIAMETER, 0, 0, FIRST_RUN);
+			else showValueScreen(WINDING_DIAMETER, 0, 0, EDIT_RUN);
 			break;
 		case 5: // szybkosc nawijania
 			showLabelBar(DISP_SET_SPEED_LABEL);
-			showValueScreen(WINDING_SPEED, 0, 0, FIRST_RUN);
+			if(!correctionFlag) showValueScreen(WINDING_SPEED, 0, 0, FIRST_RUN);
+			else showValueScreen(WINDING_SPEED, 0, 0, EDIT_RUN);
 			break;
 		case 6: // podsumowanie
 			showLabelBar(DISP_SET_SUMMARY_LABEL);
@@ -164,6 +172,7 @@ void setTheme(void)
 			break;
 		case 61: // podsumowanie
 			showLabelBar(DISP_CORRECTNESS_QUERY);
+			correctnessQuery(0, FIRST_RUN);
 			break;
 	}
 	SSD1306_UpdateScreen();
@@ -173,7 +182,7 @@ void setTheme(void)
 // -------------------------------------------------------------------------------------
 void showProjectSelectMenu(void)
 {
-	uint8_t leftMargin = 5; // left margin
+	uint8_t leftMargin = BOX_LEFT; // left margin
 	uint8_t renderingBlock = projectSelect - 1;
 	uint8_t renderingStep = 0;
 
@@ -191,11 +200,11 @@ void showProjectSelectMenu(void)
 				{
 					if(projectSelect % 2)
 					{
-						leftMargin = 68;
+						leftMargin = BOX_RIGHT;
 					}
 					else
 					{
-						leftMargin = 5;
+						leftMargin = BOX_LEFT;
 					}
 					ProjectManager Handler = Details[renderingBlock];
 					showProjectElements(&Handler, leftMargin);
@@ -205,12 +214,12 @@ void showProjectSelectMenu(void)
 					if(projectSelect % 2)
 					{
 						renderingBlock--;
-						leftMargin = 5;
+						leftMargin = BOX_LEFT;
 					}
 					else
 					{
 						renderingBlock++;
-						leftMargin = 68;
+						leftMargin = BOX_RIGHT;
 					}
 					ProjectManager Handler = Details[renderingBlock];
 					showProjectElements(&Handler, leftMargin);
@@ -243,33 +252,7 @@ void newTaskElement(void)
 void showProjectElements(ProjectManager * details, uint8_t margin)
 {
 	bool color = 0;
-	if(margin == 5)
-	{
-		if((projectSelect + 3) % 2)
-		{
-			SSD1306_DrawFilledRectangle(margin, 25, 56, 47, 1);
-			color = 0;
-		}
-		else
-		{
-			SSD1306_DrawRectangle(margin, 25, 56, 47, 1);
-			color = 1;
-		}
-	}
-	else
-	{
-		if((projectSelect + 3) % 2)
-		{
-
-			SSD1306_DrawRectangle(margin, 25, 56, 47, 1);
-			color = 1;
-		}
-		else
-		{
-			SSD1306_DrawFilledRectangle(margin, 25, 56, 47, 1);
-			color = 0;
-		}
-	}
+	color = showSelectBoxes(margin, projectSelect);
 	margin += 4;
 	SSD1306_GotoXY(margin, 29);
 	SSD1306_Puts(details->shortName, &Font_7x10, color);
@@ -431,6 +414,11 @@ void intToArray_chVal(uint16_t value)
 	}
 }
 
+void saveSetValue(uint16_t value)
+{
+	Settings[workStep - 2].setValue = value;
+}
+
 void drawMarker(uint8_t width, uint8_t height)
 {
 	for(uint8_t h = 0; h < 5; h++)
@@ -489,6 +477,61 @@ void showSummary(void)
 
 // correctness query - 61
 // -------------------------------------------------------------------------------------
+void correctnessQuery(bool direction, uint8_t runCount)
+{
+	clearContent();
+	if(runCount == CONTI_RUN)
+	{
+		if(direction) selector++;
+		else selector--;
+		if(selector > 1 && selector < 10) selector = 1;
+		if(selector > 10) selector = 0;
+	}
+	bool color = 0;
+	color = showSelectBoxes(BOX_LEFT, selector);
+	SSD1306_GotoXY(18, 29);
+	SSD1306_Puts(YES_LABEL, &Font_11x18, color);
+	SSD1306_GotoXY(28, 50);
+	SSD1306_Puts("OK", &Font_7x10, color);
+	color = showSelectBoxes(BOX_RIGHT, selector);
+	SSD1306_GotoXY(80, 29);
+	SSD1306_Puts(NO_LABEL, &Font_11x18, color);
+	SSD1306_GotoXY(76, 50);
+	SSD1306_Puts("POPRAW", &Font_7x10, color);
+	if(runCount == CONTI_RUN) SSD1306_UpdateScreen();
+}
+
+bool showSelectBoxes(uint8_t margin, uint8_t pointer)
+{
+	pointer += 3;
+	if(margin == BOX_LEFT)
+	{
+		if((pointer) % 2)
+		{
+			SSD1306_DrawFilledRectangle(margin, 25, 56, 47, 1);
+			return 0;
+		}
+		else
+		{
+			SSD1306_DrawRectangle(margin, 25, 56, 47, 1);
+			return 1;
+		}
+	}
+	else
+	{
+		if(pointer % 2)
+		{
+
+			SSD1306_DrawRectangle(margin, 25, 56, 47, 1);
+			return 1;
+		}
+		else
+		{
+			SSD1306_DrawFilledRectangle(margin, 25, 56, 47, 1);
+			return 0;
+		}
+	}
+}
 
 // uniwersalne
 // -------------------------------------------------------------------------------------
