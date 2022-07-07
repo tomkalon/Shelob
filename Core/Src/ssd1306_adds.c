@@ -11,6 +11,9 @@
 // CONST
 const uint8_t PROJECT_COUNT = 3; 		// liczba zapisanych projektów
 
+// EXTERN
+extern volatile uint16_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;
+
 // VAR
 volatile uint8_t workStep		= 0;  	// Wskazuje aktualny krok w ustawieniach
 volatile uint8_t projectSelect	= 0;  	// Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
@@ -18,7 +21,7 @@ volatile uint8_t projectSelect	= 0;  	// Wskazuje aktualnie wybrany projekt w me
 uint8_t progressBarWidth		= 0; 	// szerokosc wskaznika stron
 uint8_t progressBarStep			= 0; 	// polozenie wskaznika stron
 
-//markery wyboru
+// CHANGE VALUE
 int8_t markerPosition 				= 0; 			// polozenie wskaznika ustawianej wartosci
 volatile int8_t arrayToken[5] 		= {0,0,0,0,0};	// ustawianie wartosci
 
@@ -30,7 +33,7 @@ void structInit(void)
 {
 	uint8_t i = 0;
 
-	// STEP
+	// STEPS
 	// ============================================================
 	// STEP WIDTH
 	Settings[i].minValue = CARCASS_MIN_WIDTH;
@@ -157,6 +160,10 @@ void setTheme(void)
 			break;
 		case 6: // podsumowanie
 			showLabelBar(DISP_SET_SUMMARY_LABEL);
+			showSummary();
+			break;
+		case 61: // podsumowanie
+			showLabelBar(DISP_CORRECTNESS_QUERY);
 			break;
 	}
 	SSD1306_UpdateScreen();
@@ -174,7 +181,7 @@ void showProjectSelectMenu(void)
 		{
 			newTaskElement();
 			ProjectManager Handler = Details[0];
-			showProjectElements(&Handler, 69);
+			showProjectElements(&Handler, 68);
 		}
 		else
 		{
@@ -272,12 +279,11 @@ void showProjectElements(ProjectManager * details, uint8_t margin)
 	SSD1306_Puts(details->descShort_2, &Font_7x10, color);
 }
 
-// szczegoly projektu - 11
+// project details - 11
 // -------------------------------------------------------------------------------------
 
 void showProjectDetails(ProjectManager * details)
 {
-
 	char width[10];
 	sprintf(width, "%i.%imm", details->width / 10, details->width % 10);
 	showLabelBar(details->fullName);
@@ -445,6 +451,44 @@ void clearValue(void)
 {
 	SSD1306_DrawFilledRectangle(20, 20, 100, 18, 0);
 }
+
+// summary - 6
+// -------------------------------------------------------------------------------------
+void showSummary(void)
+{
+	char width[10], turns[10],diameter[10], speed[10];
+	uint8_t diameterArr[4];
+	uint16_t expo = 0;
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		if(!i) expo = 1;
+		else expo *= 10;
+		diameterArr[i] = (diameter_MAIN / expo) % 10;
+	}
+	sprintf(width, "%i.%i mm", width_MAIN / 10, width_MAIN % 10);
+	sprintf(turns, " %i zw.", turns_MAIN);
+	sprintf(diameter, " %i.%i%i mm", diameterArr[2], diameterArr[1], diameterArr[0]);
+	sprintf(speed, " %i", speed_MAIN);
+	SSD1306_GotoXY(0, 20);
+	SSD1306_Puts(WIDTH_LABEL, &Font_7x10, 1);
+	SSD1306_GotoXY(70, 20);
+	SSD1306_Puts(width, &Font_7x10, 1);
+	SSD1306_GotoXY(0, 31);
+	SSD1306_Puts(TURNS_LABEL, &Font_7x10, 1);
+	SSD1306_GotoXY(42, 31);
+	SSD1306_Puts(turns, &Font_7x10, 1);
+	SSD1306_GotoXY(0, 42);
+	SSD1306_Puts(DIAMETER_LABEL, &Font_7x10, 1);
+	SSD1306_GotoXY(63, 42);
+	SSD1306_Puts(diameter, &Font_7x10, 1);
+	SSD1306_GotoXY(0, 53);
+	SSD1306_Puts(SPEED_LABEL, &Font_7x10, 1);
+	SSD1306_GotoXY(63, 53);
+	SSD1306_Puts(speed, &Font_7x10, 1);
+}
+
+// correctness query - 61
+// -------------------------------------------------------------------------------------
 
 // uniwersalne
 // -------------------------------------------------------------------------------------

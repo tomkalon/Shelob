@@ -83,9 +83,13 @@ typedef enum {
 #define DISP_SET_DIAMETER_LABEL	"Srednica uzw.:"
 #define DISP_SET_SPEED_LABEL	"Predkosc nawij.:"
 #define DISP_SET_SUMMARY_LABEL	"Podsumowanie:"
+#define DISP_CORRECTNESS_QUERY		"Chcesz poprawic?"
 
 /* project details */
 #define WIDTH_LABEL  			"Szerokosc: "
+#define TURNS_LABEL				"Ilosc: "
+#define DIAMETER_LABEL			"Srednica: "
+#define SPEED_LABEL				"Predkosc:"
 #define TASK_NO_LABEL 			"L. zadan: "
 
 //=============================
@@ -98,7 +102,7 @@ void structInit(void);
 void setTheme(); 													// wyswietla obraz w zaleznosci od wybranego kroku
 
 //-- PROJECT SELECT PAGE (1)
-void showProjectElements(ProjectManager * details, uint8_t margin); 		// 5 - left; 68 - right // wyswietla kompletne menu wyboru projektu (1)
+void showProjectElements(ProjectManager * details, uint8_t margin); // 5 - left; 68 - right // wyswietla kompletne menu wyboru projektu (1)
 void showProjectSelectMenu(void); 									// pobiera strukture projektu i dobiera marginesy
 void newTaskElement(void); 											// kafelek odpowiedzialny za wybór nowego zadania
 
@@ -114,8 +118,13 @@ uint16_t arrayToInt_chVal(void);									// zamienia arrayToken[] na integer
 void intToArray_chVal(uint16_t value);								// zamienia integer na arrayToken[]
 void drawMarker(uint8_t width, uint8_t height); 					// rysuje trójkąt - wspołrzedne wskazuja wierzchołek
 void clearMarker(void); 											// usuwa wskaznik/trojkat
-void clearValue(void);												// usuwa liczbe/wartosci										// przygotowuje pod nowe ustawienia / czysci wczesniejsze wartosci
+void clearValue(void);
 
+//-- SUMMARY (6)
+void showSummary(void);												// podsumowanie ustawień
+
+//-- CORRECTNESS QUERY (61)
+void correctnessQuery(void);										// zatwierdzenie ustawien
 
 //-- UNIVERSAL FUNCTIONS
 void showLabelBar(char* label); 									// wyswietla pasek z tytulem strony

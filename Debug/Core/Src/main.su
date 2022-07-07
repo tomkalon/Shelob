@@ -2,5 +2,5 @@
 ../Core/Src/main.c:146:6:SystemClock_Config	136	static
 ../Core/Src/main.c:214:6:HAL_TIM_IC_CaptureCallback	40	static
 ../Core/Src/main.c:233:6:HAL_TIM_PeriodElapsedCallback	32	static
-../Core/Src/main.c:366:6:HAL_GPIO_EXTI_Callback	32	static
-../Core/Src/main.c:387:6:Error_Handler	8	static,ignoring_inline_asm
+../Core/Src/main.c:372:6:HAL_GPIO_EXTI_Callback	40	static
+../Core/Src/main.c:394:6:Error_Handler	8	static,ignoring_inline_asm

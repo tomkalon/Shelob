@@ -38,7 +38,7 @@
 /* USER CODE BEGIN PD */
 
 // TIM6
-#define	PRESS_BTN_TIME 15	// dlugosc wcisniecia przycisku do zapisania danych
+#define	PRESS_BTN_TIME 17	// dlugosc wcisniecia przycisku do zapisania danych
 
 /* USER CODE END PD */
 
@@ -58,7 +58,7 @@ extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w 
 // UART
 
 // TIM2
-volatile uint16_t encoderCount		= 0;	// aktualne polozenie enkodera
+volatile uint16_t encoderCount				= 0;	// aktualne polozenie enkodera
 volatile uint16_t encoderCountPrev 			= 16000; 	// poprzednie polozenie enkodera
 
 // TIM6
@@ -67,7 +67,7 @@ static volatile uint8_t pressBtnCounter		= 0;	// licznik czasu wcisniecia przyci
 // TIM7
 
 // MAIN VAR
-static volatile uint16_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;
+volatile uint16_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;
 
 /* USER CODE END PV */
 
@@ -240,33 +240,38 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		bool btnBusyFlag = HAL_GPIO_ReadPin(GPIOA, SET_BTN_Pin);
 		HAL_TIM_Base_Stop_IT(&htim6);
-
 		if(!btnBusyFlag)
 		{
 			HAL_TIM_Base_Start_IT(&htim6);
-			pressBtnCounter++;
+			if(workStep >= 2 && workStep <=5) pressBtnCounter++;
 			if(pressBtnCounter > PRESS_BTN_TIME)
 			{
 				HAL_TIM_Base_Stop_IT(&htim6);
+				bool exception = 0;
 				switch(workStep)
 				{
-					case 2: // step 2
+					case 2:
 						width_MAIN = arrayToInt_chVal();
 						break;
-					case 3: // step 3
+					case 3:
 						turns_MAIN = arrayToInt_chVal();
 						break;
-					case 4: // step 4
+					case 4:
 						diameter_MAIN = arrayToInt_chVal();
 						break;
-					case 5: // step 5
+					case 5:
 						speed_MAIN = arrayToInt_chVal();
+						break;
+					case 61:
+						exception = 1;
 						break;
 				}
 				pressBtnCounter = 0;
-				workStep++;
-
-				setTheme();
+				if(!exception)
+				{
+					workStep++;
+					setTheme();
+				}
 			}
 		}
 		if(btnBusyFlag)
@@ -274,7 +279,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			pressBtnCounter = 0;
 			switch(workStep)
 			{
-				case 1: // step 1
+				case 1:
 					if(projectSelect == 0)
 					{
 						workStep = 2;
@@ -285,21 +290,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					}
 					setTheme();
 					break;
-				case 11: // step 11
+				case 11:
 					workStep = 1;
 					setTheme();
 					break;
-				case 2: // step 2
+				case 2:
 					showValueScreen(CARCASS_WIDTH, VALUE_NO_CHANGING, 0, CONTI_RUN);
 					break;
-				case 3: // step 3
+				case 3:
 					showValueScreen(CARCASS_COIL_TURNS, VALUE_NO_CHANGING, 0, CONTI_RUN);
 					break;
-				case 4: // step 4
+				case 4:
 					showValueScreen(WINDING_DIAMETER, VALUE_NO_CHANGING, 0, CONTI_RUN);
 					break;
-				case 5: // step 5
+				case 5:
 					showValueScreen(WINDING_SPEED, VALUE_NO_CHANGING, 0, CONTI_RUN);
+					break;
+				case 6:
+					workStep = 61;
+					setTheme();
 					break;
 			}
 		}
@@ -365,8 +374,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 // =========================================================================================
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	uint8_t tim6BusyFlag = HAL_TIM_Base_GetState(&htim7);
-	if(tim6BusyFlag == 1)
+	uint8_t tim6BusyFlag = HAL_TIM_Base_GetState(&htim6);
+	uint8_t tim7BusyFlag = HAL_TIM_Base_GetState(&htim7);
+	if((tim6BusyFlag == 1) && (tim7BusyFlag == 1))
 	{
 		if(GPIO_Pin == SET_BTN_Pin)
 		{
