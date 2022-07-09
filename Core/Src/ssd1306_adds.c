@@ -18,6 +18,7 @@ extern volatile uint16_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;
 volatile uint8_t workStep		= 0;  	// Wskazuje aktualny krok w ustawieniach
 volatile uint8_t projectSelect	= 0;  	// Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
 volatile uint8_t correctionFlag = 0;	// informuje, czy dane edytowane w trybie poprawiania
+volatile uint8_t taskStep		= 0;	// wybierane zadanie danego projektu
 
 uint8_t progressBarWidth		= 0; 	// szerokosc wskaznika stron
 uint8_t progressBarStep			= 0; 	// polozenie wskaznika stron
@@ -73,7 +74,7 @@ void structInit(void)
 
 	// PROJECT
 	// ============================================================
-	//PROJECT - PEAVEY CLASSIC 30 - MAIN TRANSFORMER
+	// PROJECT - PEAVEY CLASSIC 30 - MAIN TRANSFORMER
 	Details[i].fullName		= "Peavey-C30-Main";
 	Details[i].shortName	= "P-C30-M";
 	Details[i].descShort_1	= "230V";
@@ -87,9 +88,10 @@ void structInit(void)
 	Details[i].diameter[1]	= 15;
 	Details[i].turns[2]		= 200;
 	Details[i].diameter[2]	= 100;
+	Details[i].taskCount	= countArray(&Details[i]);
 	i++;
 
-	//PROJECT - PEAVEY CLASSIC 30 - SPEAKER TRANSFORMER
+	// PROJECT - PEAVEY CLASSIC 30 - SPEAKER TRANSFORMER
 	Details[i].fullName 	= "Peavey-C30-SPK";
 	Details[i].shortName	= "P-C30-S";
 	Details[i].descShort_1	= "4xEL84";
@@ -101,9 +103,10 @@ void structInit(void)
 	Details[i].diameter[0]	= 20;
 	Details[i].turns[1]		= 600;
 	Details[i].diameter[1]	= 120;
+	Details[i].taskCount	= countArray(&Details[i]);
 	i++;
 
-	//PROJECT - TEST
+	// PROJECT - TEST
 	Details[i].fullName 	= "TEST-FULL";
 	Details[i].shortName	= "TEST-SH";
 	Details[i].descShort_1	= "2XEL84";
@@ -119,6 +122,7 @@ void structInit(void)
 	Details[i].diameter[2]	= 1;
 	Details[i].turns[3]		= 10;
 	Details[i].diameter[3]	= 250;
+	Details[i].taskCount	= countArray(&Details[i]);
 }
 
 void setTheme(void)
@@ -128,9 +132,9 @@ void setTheme(void)
 	{
 		case 0: // wyświetla logo
 			SSD1306_DrawBitmap(0, 0, IMG_LOGO, 128, 64, 1);
-			workStep++;
 			SSD1306_UpdateScreen();
 			HAL_Delay(1000);
+			workStep++;
 			SSD1306_Clear();
 			SSD1306_UpdateScreen();
 			setTheme();
@@ -143,8 +147,11 @@ void setTheme(void)
 			showProjectSelectMenu();
 			break;
 		case 11:; // szczegoly projektu
-			ProjectManager Handler = Details[projectSelect - 1];
-			showProjectDetails(&Handler);
+			showProjectDetails(&Details[projectSelect - 1], 0);
+			break;
+		case 12:; // szczegoly projektu
+			clearContent();
+			showProjectDetails(&Details[projectSelect - 1], 1);
 			break;
 		case 2: // ustawienie szerokości karkasu
 			showLabelBar(DISP_SET_WIDTH_LABEL);
@@ -265,7 +272,7 @@ void showProjectElements(ProjectManager * details, uint8_t margin)
 // project details - 11
 // -------------------------------------------------------------------------------------
 
-void showProjectDetails(ProjectManager * details)
+void showProjectDetails(ProjectManager * details, bool list)
 {
 	char width[10];
 	sprintf(width, "%i.%imm", details->width / 10, details->width % 10);
@@ -274,16 +281,43 @@ void showProjectDetails(ProjectManager * details)
 	SSD1306_Puts(WIDTH_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 20);
 	SSD1306_Puts(width, &Font_7x10, 1);
+	if(!list)
+	{
+		SSD1306_GotoXY(0, 31);
+		SSD1306_Puts(TASK_COUNT_LABEL, &Font_7x10, 1);
+		SSD1306_GotoXY(70, 31);
+		uint8_t count = details->taskCount;
+		sprintf(width, "%i", count);
+		SSD1306_Puts(width, &Font_7x10, 1);
+		SSD1306_GotoXY(0, 42);
+		SSD1306_Puts(details->descFull_1, &Font_7x10, 1);
+		SSD1306_GotoXY(0, 53);
+		SSD1306_Puts(details->descFull_2, &Font_7x10, 1);
+	}
+	else
+	{
+		showProjectTasks(details);
+	}
+
+}
+
+// project tasks list - 12
+// -------------------------------------------------------------------------------------
+
+void showProjectTasks(ProjectManager * details)
+{
 	SSD1306_GotoXY(0, 31);
-	SSD1306_Puts(TASK_NO_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(TURNS_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 31);
-	uint8_t count = countArray(details);
-	sprintf(width, "%i", count);
-	SSD1306_Puts(width, &Font_7x10, 1);
+	char valueToken[10];
+	sprintf(valueToken, "%i", details->turns[taskStep]);
+	SSD1306_Puts(valueToken, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 42);
-	SSD1306_Puts(details->descFull_1, &Font_7x10, 1);
+	SSD1306_Puts(DIAMETER_LABEL, &Font_7x10, 1);
+	SSD1306_GotoXY(70, 42);
+	sprintf(valueToken, "%i", details->diameter[taskStep]);
+	SSD1306_Puts(valueToken, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 53);
-	SSD1306_Puts(details->descFull_2, &Font_7x10, 1);
 }
 
 // ustawianie wartosci - 2++

@@ -94,7 +94,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	structInit();
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -115,15 +115,22 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_TIM2_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
+
+  // structures initialization
+  structInit();
+
   // display initialization
   SSD1306_Init();
   SSD1306_SetContrast(0);
   setTheme();
+
+  // timer TIM2 Encoder
   __HAL_TIM_SET_COUNTER(&htim2, 32000);
   HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL);
 
@@ -232,13 +239,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(!btnBusyFlag)
 		{
 			HAL_TIM_Base_Start_IT(&htim6);
-			if((workStep >= 2 && workStep <=5) || (workStep == 61)) pressBtnCounter++;
+			if((workStep >= 2 && workStep <=61)) pressBtnCounter++;
 			if(pressBtnCounter > PRESS_BTN_TIME)
 			{
 				HAL_TIM_Base_Stop_IT(&htim6);
 				bool exception = 0;
 				switch(workStep)
 				{
+					case 11:
+						exception = 1;
+						workStep = 12;
+						break;
+					case 12:
+						exception = 1;
+						workStep = 1;
+						break;
 					case 2:
 						width_MAIN = arrayToInt_chVal();
 						saveSetValue(width_MAIN);
@@ -339,19 +354,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				case 1: // step 1
 					if(!direction)
 					{
-						if(projectSelect > 0)
-						{
-							projectSelect--;
-						}
+						if(projectSelect > 0) projectSelect--;
 					}
 					else
 					{
-						if((projectSelect) < PROJECT_COUNT)
-						{
-							projectSelect++;
-						}
+						if((projectSelect) < PROJECT_COUNT) projectSelect++;
 					}
 					setTheme();
+					break;
+				case 12:
 					break;
 				case 2:
 					showValueScreen(CARCASS_WIDTH, VALUE_CHANGING, direction, CONTI_RUN);

@@ -28,6 +28,7 @@ typedef struct {
 	uint16_t	width;
 	uint16_t	turns[10];
 	uint16_t	diameter[10];
+	uint8_t		taskCount;
 } ProjectManager;
 
 typedef struct {
@@ -97,7 +98,7 @@ typedef enum {
 #define TURNS_LABEL				"Ilosc: "
 #define DIAMETER_LABEL			"Srednica: "
 #define SPEED_LABEL				"Predkosc:"
-#define TASK_NO_LABEL 			"L. zadan: "
+#define TASK_COUNT_LABEL 		"L. zadan: "
 
 /* selector */
 #define YES_LABEL				"TAK"
@@ -119,7 +120,8 @@ void showProjectSelectMenu(void); 									// pobiera strukture projektu i dobie
 void newTaskElement(void); 											// kafelek odpowiedzialny za wybór nowego zadania
 
 //-- PROJECT DETAILS (11)
-void showProjectDetails(ProjectManager * details);					// wyswietla szczegoly projektu
+void showProjectDetails(ProjectManager * details, bool list);		// wyswietla szczegoly projektu
+void showProjectTasks(ProjectManager * details);					// wyswietla zadanai danego projektu
 
 //-- VALUE SETTINGS (2++)
 void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t runCount);	// menu ustawien vartosci
