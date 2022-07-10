@@ -92,7 +92,7 @@ void structInit(void)
 	i++;
 
 	// PROJECT - PEAVEY CLASSIC 30 - SPEAKER TRANSFORMER
-	Details[i].fullName 	= "Peavey-C30-SPK";
+	Details[i].fullName		= "Peavey-C30-SPK";
 	Details[i].shortName	= "P-C30-S";
 	Details[i].descShort_1	= "4xEL84";
 	Details[i].descShort_2	= "16 Ohms";
@@ -107,7 +107,7 @@ void structInit(void)
 	i++;
 
 	// PROJECT - TEST
-	Details[i].fullName 	= "TEST-FULL";
+	Details[i].fullName		= "TEST-FULL";
 	Details[i].shortName	= "TEST-SH";
 	Details[i].descShort_1	= "2XEL84";
 	Details[i].descShort_2	= "4-8-16";
@@ -193,52 +193,47 @@ void showProjectSelectMenu(void)
 	uint8_t renderingBlock = projectSelect - 1;
 	uint8_t renderingStep = 0;
 
-		if(projectSelect < 2)
+	if(projectSelect < 2)
+	{
+		newTaskElement();
+		ProjectManager Handler = Details[0];
+		showProjectElements(&Handler, 68);
+	}
+	else
+	{
+		while(renderingStep < 2)
 		{
-			newTaskElement();
-			ProjectManager Handler = Details[0];
-			showProjectElements(&Handler, 68);
-		}
-		else
-		{
-			while(renderingStep < 2)
+			if(!renderingStep)
 			{
-				if(!renderingStep)
+				if(projectSelect % 2) leftMargin = BOX_RIGHT;
+				else leftMargin = BOX_LEFT;
+				ProjectManager Handler = Details[renderingBlock];
+				showProjectElements(&Handler, leftMargin);
+			}
+			else
+			{
+				if(projectSelect % 2)
 				{
-					if(projectSelect % 2)
-					{
-						leftMargin = BOX_RIGHT;
-					}
-					else
-					{
-						leftMargin = BOX_LEFT;
-					}
-					ProjectManager Handler = Details[renderingBlock];
-					showProjectElements(&Handler, leftMargin);
+					renderingBlock--;
+					leftMargin = BOX_LEFT;
 				}
 				else
 				{
-					if(projectSelect % 2)
-					{
-						renderingBlock--;
-						leftMargin = BOX_LEFT;
-					}
-					else
-					{
-						renderingBlock++;
-						leftMargin = BOX_RIGHT;
-					}
-					ProjectManager Handler = Details[renderingBlock];
-					showProjectElements(&Handler, leftMargin);
+					renderingBlock++;
+					leftMargin = BOX_RIGHT;
 				}
-				renderingStep++;
+				ProjectManager Handler = Details[renderingBlock];
+				showProjectElements(&Handler, leftMargin);
 			}
+			renderingStep++;
 		}
+	}
 }
 
 void newTaskElement(void)
 {
 	bool color = 0;
+
 	if((projectSelect + 3) % 2)
 	{
 		SSD1306_DrawFilledRectangle(5, 25, 56, 47, 1);
@@ -249,7 +244,6 @@ void newTaskElement(void)
 		SSD1306_DrawRectangle(5, 25, 56, 47, 1);
 		color = 1;
 	}
-
 	SSD1306_GotoXY(18, 33);
 	SSD1306_Puts("Nowe", &Font_7x10, color);
 	SSD1306_GotoXY(9, 46);
@@ -259,6 +253,7 @@ void newTaskElement(void)
 void showProjectElements(ProjectManager * details, uint8_t margin)
 {
 	bool color = 0;
+
 	color = showSelectBoxes(margin, projectSelect);
 	margin += 4;
 	SSD1306_GotoXY(margin, 29);
@@ -275,6 +270,7 @@ void showProjectElements(ProjectManager * details, uint8_t margin)
 void showProjectDetails(ProjectManager * details, bool list)
 {
 	char width[10];
+
 	sprintf(width, "%i.%imm", details->width / 10, details->width % 10);
 	showLabelBar(details->fullName);
 	SSD1306_GotoXY(0, 20);
@@ -294,11 +290,7 @@ void showProjectDetails(ProjectManager * details, bool list)
 		SSD1306_GotoXY(0, 53);
 		SSD1306_Puts(details->descFull_2, &Font_7x10, 1);
 	}
-	else
-	{
-		showProjectTasks(details);
-	}
-
+	else showProjectTasks(details);
 }
 
 // project tasks list - 12
@@ -306,10 +298,11 @@ void showProjectDetails(ProjectManager * details, bool list)
 
 void showProjectTasks(ProjectManager * details)
 {
+	char valueToken[10];
+
 	SSD1306_GotoXY(0, 31);
 	SSD1306_Puts(TURNS_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 31);
-	char valueToken[10];
 	sprintf(valueToken, "%i", details->turns[taskStep]);
 	SSD1306_Puts(valueToken, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 42);
@@ -325,6 +318,7 @@ void showProjectTasks(ProjectManager * details)
 void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t runCount)
 {
 	char valueLettering[10];
+
 	if(runCount)
 	{
 		markerPosition = 0;
@@ -359,7 +353,6 @@ void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t r
 		case 3: sprintf(valueLettering, "   %i", arrayToken[0]);
 			break;
 	}
-
 	clearValue();
 	SSD1306_GotoXY(25, 20);
 	SSD1306_Puts(valueLettering, &Font_11x18, 1);
@@ -368,8 +361,9 @@ void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t r
 
 void setMarkerPosition(uint8_t divider)
 {
-	clearMarker();
 	uint8_t correction = 0;
+
+	clearMarker();
 	if(markerPosition >= divider)
 	{
 		correction = 11;
@@ -389,34 +383,18 @@ void changeValue(bool set, uint8_t position, uint16_t min, uint16_t max)
 	uint16_t value;
 	uint16_t valueToken = arrayToInt_chVal();
 	uint16_t expo 		= 1;
-	for(uint8_t i = 0; i < position; i++)
-	{
-		expo *= 10;
-	}
 
+	for(uint8_t i = 0; i < position; i++) {expo *= 10;}
 	uint8_t overflowFlag = arrayToken[position] = (valueToken / expo) % 10; // określa wartość cyfry nad markerem wyboru
-
 	if(set)
 	{
-		if(overflowFlag >= 9)
-		{
-			value = valueToken - (expo * 9);
-		}
-		else
-		{
-			value = valueToken + expo;
-		}
+		if(overflowFlag >= 9) value = valueToken - (expo * 9);
+		else value = valueToken + expo;
 	}
 	else
 	{
-		if(overflowFlag <= 0)
-		{
-			value = valueToken + (expo * 9);
-		}
-		else
-		{
-			value = valueToken - expo;
-		}
+		if(overflowFlag <= 0) value = valueToken + (expo * 9);
+		else value = valueToken - expo;
 	}
 	if(value < min){value = valueToken;}
 	if(value > max){value = valueToken;}
@@ -440,6 +418,7 @@ uint16_t arrayToInt_chVal(void)
 void intToArray_chVal(uint16_t value)
 {
 	uint16_t expo;
+
 	for(uint8_t i = 0; i < 5; i++)
 	{
 		if(!i){expo = 1;}
@@ -481,6 +460,7 @@ void showSummary(void)
 	char width[10], turns[10],diameter[10], speed[10];
 	uint8_t diameterArr[4];
 	uint16_t expo = 0;
+
 	for(uint8_t i = 0; i < 5; i++)
 	{
 		if(!i) expo = 1;
@@ -513,6 +493,8 @@ void showSummary(void)
 // -------------------------------------------------------------------------------------
 void correctnessQuery(bool direction, uint8_t runCount)
 {
+	bool color = 0;
+
 	clearContent();
 	if(runCount == CONTI_RUN)
 	{
@@ -521,7 +503,6 @@ void correctnessQuery(bool direction, uint8_t runCount)
 		if(selector > 1 && selector < 10) selector = 1;
 		if(selector > 10) selector = 0;
 	}
-	bool color = 0;
 	color = showSelectBoxes(BOX_LEFT, selector);
 	SSD1306_GotoXY(18, 29);
 	SSD1306_Puts(YES_LABEL, &Font_11x18, color);
@@ -585,18 +566,17 @@ void clearContent(void)
 void paginationBar(uint8_t pageBarWidth, uint8_t pageNo)
 {
 	uint8_t pageBarMargin = pageBarWidth * pageNo;
+
 	SSD1306_DrawFilledRectangle(pageBarMargin, 18, pageBarWidth, 3, 1);
 }
 
 uint8_t countArray(ProjectManager * details)
 {
 	uint8_t count = 0;
+
 	for(uint8_t i = 0; i<10; i++)
 	{
-		if(details->turns[i] > 0)
-		{
-			count++;
-		}
+		if(details->turns[i] > 0) count++;
 	}
 	return count;
 }

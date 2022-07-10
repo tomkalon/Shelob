@@ -213,14 +213,9 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	if(htim->Instance == TIM2)
 	{
 		uint8_t tim7BusyFlag = HAL_TIM_Base_GetState(&htim7);
-		uint8_t encoderBusyFlag = HAL_TIM_Encoder_GetState(&htim7);
-		if(tim7BusyFlag == 1)
-		{
-			if(encoderBusyFlag == 1)
-			{
-				HAL_TIM_Base_Start_IT(&htim7);
-			}
-		}
+		uint8_t encoderBusyFlag = HAL_TIM_Encoder_GetState(&htim2);
+
+		if(tim7BusyFlag == 1 && encoderBusyFlag == 1) HAL_TIM_Base_Start_IT(&htim7);
 	}
 }
 
@@ -235,6 +230,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if(htim->Instance == TIM6)
 	{
 		bool btnBusyFlag = HAL_GPIO_ReadPin(GPIOA, SET_BTN_Pin);
+
 		HAL_TIM_Base_Stop_IT(&htim6);
 		if(!btnBusyFlag)
 		{
@@ -296,14 +292,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			switch(workStep)
 			{
 				case 1:
-					if(projectSelect == 0)
-					{
-						workStep = 2;
-					}
-					else
-					{
-						workStep = 11;
-					}
+					if(projectSelect == 0) workStep = 2;
+					else workStep = 11;
 					setTheme();
 					break;
 				case 11:
@@ -335,19 +325,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	// ========================
 	if(htim->Instance == TIM7)
 	{
+		bool direction;
+
 		HAL_TIM_Base_Stop_IT(&htim7);
 		encoderCount = (__HAL_TIM_GET_COUNTER(&htim2) / 2);
-		bool direction;
 		if(encoderCount != encoderCountPrev)
 		{
-			if(encoderCount > encoderCountPrev)
-			{
-				direction = 1;
-			}
-			else
-			{
-				direction = 0;
-			}
+			if(encoderCount > encoderCountPrev) direction = 1;
+			else direction = 0;
 			encoderCountPrev = encoderCount;
 			switch(workStep)
 			{
@@ -394,10 +379,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	uint8_t tim7BusyFlag = HAL_TIM_Base_GetState(&htim7);
 	if((tim6BusyFlag == 1) && (tim7BusyFlag == 1))
 	{
-		if(GPIO_Pin == SET_BTN_Pin)
-		{
-			HAL_TIM_Base_Start_IT(&htim6);
-		}
+		if(GPIO_Pin == SET_BTN_Pin) HAL_TIM_Base_Start_IT(&htim6);
 	}
 }
 // =========================================================================================
