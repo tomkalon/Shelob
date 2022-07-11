@@ -112,16 +112,18 @@ typedef enum {
 #define DISP_CORRECTNESS_QUERY	"Poprawne?"
 
 /* details labels */
-#define WIDTH_LABEL  			"Szerokosc: "
-#define TURNS_LABEL				"Ilosc: "
-#define DIAMETER_LABEL			"Srednica: "
-#define SPEED_LABEL				"Predkosc:"
-#define TASK_COUNT_LABEL 		"L. zadan: "
+#define DETAIL_WIDTH_LABEL  	"Szerokosc: "
+#define DETAIL_TURNS_LABEL		"Ilosc: "
+#define DETAIL_DIAMETER_LABEL	"Srednica: "
+#define DETAIL_SPEED_LABEL		"Predkosc:"
+#define DETAIL_TASK_COUNT_LABEL "L. zadan: "
 
 /* selector */
-#define YES_LABEL				"TAK"
-#define NO_LABEL				"NIE"
-
+#define TEXT_YES		"TAK"
+#define TEXT_NO			"NIE"
+#define TEXT_OK			"OK"
+#define TEXT_CORRECT	"POPRAW"
+#define TEXT_RETURN		"POWROT"
 
 //=============================
 /* FUNCTIONS */

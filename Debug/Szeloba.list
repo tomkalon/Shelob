@@ -5650,7 +5650,7 @@ void showProjectDetails(ProjectManager * details, bool list)
  80025ee:	2114      	movs	r1, #20
  80025f0:	2000      	movs	r0, #0
  80025f2:	f7fe fe89 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(WIDTH_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DETAIL_WIDTH_LABEL, &Font_7x10, 1);
  80025f6:	492d      	ldr	r1, [pc, #180]	; (80026ac <showProjectDetails+0x104>)
  80025f8:	4b2d      	ldr	r3, [pc, #180]	; (80026b0 <showProjectDetails+0x108>)
  80025fa:	2201      	movs	r2, #1
@@ -5680,7 +5680,7 @@ void showProjectDetails(ProjectManager * details, bool list)
  8002626:	211f      	movs	r1, #31
  8002628:	2000      	movs	r0, #0
  800262a:	f7fe fe6d 	bl	8001308 <SSD1306_GotoXY>
-		SSD1306_Puts(TASK_COUNT_LABEL, &Font_7x10, 1);
+		SSD1306_Puts(DETAIL_TASK_COUNT_LABEL, &Font_7x10, 1);
  800262e:	491f      	ldr	r1, [pc, #124]	; (80026ac <showProjectDetails+0x104>)
  8002630:	4b20      	ldr	r3, [pc, #128]	; (80026b4 <showProjectDetails+0x10c>)
  8002632:	2201      	movs	r2, #1
@@ -5769,7 +5769,7 @@ void showProjectTasks(ProjectManager * details)
  80026c4:	211f      	movs	r1, #31
  80026c6:	2000      	movs	r0, #0
  80026c8:	f7fe fe1e 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(TURNS_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DETAIL_TURNS_LABEL, &Font_7x10, 1);
  80026cc:	4925      	ldr	r1, [pc, #148]	; (8002764 <showProjectTasks+0xa8>)
  80026ce:	4b26      	ldr	r3, [pc, #152]	; (8002768 <showProjectTasks+0xac>)
  80026d0:	2201      	movs	r2, #1
@@ -5805,7 +5805,7 @@ void showProjectTasks(ProjectManager * details)
  800270c:	212a      	movs	r1, #42	; 0x2a
  800270e:	2000      	movs	r0, #0
  8002710:	f7fe fdfa 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(DIAMETER_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DETAIL_DIAMETER_LABEL, &Font_7x10, 1);
  8002714:	4913      	ldr	r1, [pc, #76]	; (8002764 <showProjectTasks+0xa8>)
  8002716:	4b17      	ldr	r3, [pc, #92]	; (8002774 <showProjectTasks+0xb8>)
  8002718:	2201      	movs	r2, #1
@@ -6934,7 +6934,7 @@ void showSummary(void)
  8002ee0:	2114      	movs	r1, #20
  8002ee2:	2000      	movs	r0, #0
  8002ee4:	f7fe fa10 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(WIDTH_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DETAIL_WIDTH_LABEL, &Font_7x10, 1);
  8002ee8:	4930      	ldr	r1, [pc, #192]	; (8002fac <showSummary+0x1c4>)
  8002eea:	4b31      	ldr	r3, [pc, #196]	; (8002fb0 <showSummary+0x1c8>)
  8002eec:	2201      	movs	r2, #1
@@ -6954,7 +6954,7 @@ void showSummary(void)
  8002f08:	211f      	movs	r1, #31
  8002f0a:	2000      	movs	r0, #0
  8002f0c:	f7fe f9fc 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(TURNS_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DETAIL_TURNS_LABEL, &Font_7x10, 1);
  8002f10:	4926      	ldr	r1, [pc, #152]	; (8002fac <showSummary+0x1c4>)
  8002f12:	4b28      	ldr	r3, [pc, #160]	; (8002fb4 <showSummary+0x1cc>)
  8002f14:	2201      	movs	r2, #1
@@ -6974,7 +6974,7 @@ void showSummary(void)
  8002f30:	212a      	movs	r1, #42	; 0x2a
  8002f32:	2000      	movs	r0, #0
  8002f34:	f7fe f9e8 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(DIAMETER_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DETAIL_DIAMETER_LABEL, &Font_7x10, 1);
  8002f38:	491c      	ldr	r1, [pc, #112]	; (8002fac <showSummary+0x1c4>)
  8002f3a:	4b1f      	ldr	r3, [pc, #124]	; (8002fb8 <showSummary+0x1d0>)
  8002f3c:	2201      	movs	r2, #1
@@ -6995,7 +6995,7 @@ void showSummary(void)
  8002f5a:	2135      	movs	r1, #53	; 0x35
  8002f5c:	2000      	movs	r0, #0
  8002f5e:	f7fe f9d3 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(SPEED_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DETAIL_SPEED_LABEL, &Font_7x10, 1);
  8002f62:	4912      	ldr	r1, [pc, #72]	; (8002fac <showSummary+0x1c4>)
  8002f64:	4b15      	ldr	r3, [pc, #84]	; (8002fbc <showSummary+0x1d4>)
  8002f66:	2201      	movs	r2, #1
@@ -7120,7 +7120,7 @@ void correctnessQuery(bool direction, uint8_t runCount)
  800304c:	211d      	movs	r1, #29
  800304e:	2012      	movs	r0, #18
  8003050:	f7fe f95a 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(YES_LABEL, &Font_11x18, color);
+	SSD1306_Puts(TEXT_YES, &Font_11x18, color);
  8003054:	002c      	movs	r4, r5
  8003056:	193b      	adds	r3, r7, r4
  8003058:	781a      	ldrb	r2, [r3, #0]
@@ -7132,7 +7132,7 @@ void correctnessQuery(bool direction, uint8_t runCount)
  8003064:	2132      	movs	r1, #50	; 0x32
  8003066:	201c      	movs	r0, #28
  8003068:	f7fe f94e 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts("OK", &Font_7x10, color);
+	SSD1306_Puts(TEXT_OK, &Font_7x10, color);
  800306c:	193b      	adds	r3, r7, r4
  800306e:	781a      	ldrb	r2, [r3, #0]
  8003070:	491a      	ldr	r1, [pc, #104]	; (80030dc <correctnessQuery+0x11c>)
@@ -7154,7 +7154,7 @@ void correctnessQuery(bool direction, uint8_t runCount)
  8003090:	211d      	movs	r1, #29
  8003092:	2050      	movs	r0, #80	; 0x50
  8003094:	f7fe f938 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts(NO_LABEL, &Font_11x18, color);
+	SSD1306_Puts(TEXT_NO, &Font_11x18, color);
  8003098:	197b      	adds	r3, r7, r5
  800309a:	781a      	ldrb	r2, [r3, #0]
  800309c:	490d      	ldr	r1, [pc, #52]	; (80030d4 <correctnessQuery+0x114>)
@@ -7165,7 +7165,7 @@ void correctnessQuery(bool direction, uint8_t runCount)
  80030a6:	2132      	movs	r1, #50	; 0x32
  80030a8:	204c      	movs	r0, #76	; 0x4c
  80030aa:	f7fe f92d 	bl	8001308 <SSD1306_GotoXY>
-	SSD1306_Puts("POPRAW", &Font_7x10, color);
+	SSD1306_Puts(TEXT_CORRECT, &Font_7x10, color);
  80030ae:	197b      	adds	r3, r7, r5
  80030b0:	781a      	ldrb	r2, [r3, #0]
  80030b2:	490a      	ldr	r1, [pc, #40]	; (80030dc <correctnessQuery+0x11c>)
