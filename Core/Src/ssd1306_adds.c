@@ -24,8 +24,8 @@ uint8_t progressBarWidth		= 0; 	// szerokosc wskaznika stron
 uint8_t progressBarStep			= 0; 	// polozenie wskaznika stron
 
 // CHANGE VALUE
-int8_t markerPosition 				= 0; 			// polozenie wskaznika ustawianej wartosci
-volatile int8_t arrayToken[5] 		= {0,0,0,0,0};	// ustawianie wartosci
+int8_t markerPosition 			= 0; 			// polozenie wskaznika ustawianej wartosci
+volatile int8_t arrayToken[5] 	= {0,0,0,0,0};	// ustawianie wartosci
 
 // YES/NO QUERY
 volatile uint8_t selector = 0;
@@ -41,33 +41,33 @@ void structInit(void)
 	// STEPS
 	// ============================================================
 	// STEP WIDTH
-	Settings[i].minValue = CARCASS_MIN_WIDTH;
-	Settings[i].setValue = 0;
-	Settings[i].maxValue = CARCASS_MAX_WIDTH;
+	Settings[i].minValue 	= VAL_RNG_CARCASS_MIN_WIDTH;
+	Settings[i].setValue	= 0;
+	Settings[i].maxValue 	= VAL_RNG_CARCASS_MAX_WIDTH;
 	Settings[i].digitsCount = 4;
 	Settings[i].dotPosition = 1;
 	i++;
 
 	// STEP TURNS
-	Settings[i].minValue = CARCASS_MIN_TURNS;
-	Settings[i].setValue = 0;
-	Settings[i].maxValue = CARCASS_MAX_TURNS;
+	Settings[i].minValue 	= VAL_RNG_CARCASS_MIN_TURNS;
+	Settings[i].setValue 	= 0;
+	Settings[i].maxValue	= VAL_RNG_CARCASS_MAX_TURNS;
 	Settings[i].digitsCount = 4;
 	Settings[i].dotPosition = 0;
 	i++;
 
 	// STEP DIAMETER
-	Settings[i].minValue = WINDING_MIN_DIAMETER;
-	Settings[i].setValue = 0;
-	Settings[i].maxValue = WINDING_MAX_DIAMETER;
+	Settings[i].minValue 	= VAL_RNG_WINDING_MIN_DIAMETER;
+	Settings[i].setValue 	= 0;
+	Settings[i].maxValue 	= VAL_RNG_WINDING_MAX_DIAMETER;
 	Settings[i].digitsCount = 3;
 	Settings[i].dotPosition = 2;
 	i++;
 
 	// STEP SPEED
-	Settings[i].minValue = WINDING_MIN_SPEED;
-	Settings[i].setValue = 0;
-	Settings[i].maxValue = WINDING_MAX_SPEED;
+	Settings[i].minValue 	= VAL_RNG_WINDING_MIN_SPEED;
+	Settings[i].setValue 	= 0;
+	Settings[i].maxValue 	= VAL_RNG_WINDING_MAX_SPEED;
 	Settings[i].digitsCount = 1;
 	Settings[i].dotPosition = 0;
 	i=0;
@@ -130,56 +130,55 @@ void setTheme(void)
 	clearContent();
 	switch (workStep)
 	{
-		case 0: // wyświetla logo
+		case STEP_LOGO_DISP:
 			SSD1306_DrawBitmap(0, 0, IMG_LOGO, 128, 64, 1);
 			SSD1306_UpdateScreen();
 			HAL_Delay(1000);
-			workStep++;
 			SSD1306_Clear();
-			SSD1306_UpdateScreen();
+			workStep++;
 			setTheme();
 			break;
-		case 1: // wybór projektu - nowy lub istniejacy
+		case STEP_SELECT_PROJECT:
 			showLabelBar(DISP_PROJECT_LABEL);
 			progressBarWidth = (128 / ((PROJECT_COUNT + 1) / 2) + ((PROJECT_COUNT + 1) % 2));
 			progressBarStep = projectSelect / 2;
 			paginationBar(progressBarWidth, progressBarStep);
 			showProjectSelectMenu();
 			break;
-		case 11:; // szczegoly projektu
+		case STEP_PROJECT_DETAILS:
 			showProjectDetails(&Details[projectSelect - 1], 0);
 			break;
-		case 12:; // szczegoly projektu
+		case STEP_PROJECT_TASKS_LIST:
 			clearContent();
 			showProjectDetails(&Details[projectSelect - 1], 1);
 			break;
-		case 2: // ustawienie szerokości karkasu
+		case STEP_WIDTH_SET:
 			showLabelBar(DISP_SET_WIDTH_LABEL);
-			if(!correctionFlag) showValueScreen(CARCASS_WIDTH, 0, 0, FIRST_RUN);
-			else showValueScreen(CARCASS_WIDTH, 0, 0, EDIT_RUN);
+			if(!correctionFlag) showValueScreen(VAL_TYPE_CARCASS_WIDTH, 0, 0, RUN_FLAG_FIRST);
+			else showValueScreen(VAL_TYPE_CARCASS_WIDTH, 0, 0, RUN_FLAG_EDIT);
 			break;
-		case 3: // ustawienie ilosci zwojow
+		case STEP_TURNS_SET:
 			showLabelBar(DISP_SET_TURNS_LABEL);
-			if(!correctionFlag) showValueScreen(CARCASS_COIL_TURNS, 0, 0, FIRST_RUN);
-			else showValueScreen(CARCASS_COIL_TURNS, 0, 0, EDIT_RUN);
+			if(!correctionFlag) showValueScreen(VAL_TYPE_CARCASS_COIL_TURNS, 0, 0, RUN_FLAG_FIRST);
+			else showValueScreen(VAL_TYPE_CARCASS_COIL_TURNS, 0, 0, RUN_FLAG_EDIT);
 			break;
-		case 4: // srednica uzwojenia
+		case STEP_DIAMETER_SET:
 			showLabelBar(DISP_SET_DIAMETER_LABEL);
-			if(!correctionFlag) showValueScreen(WINDING_DIAMETER, 0, 0, FIRST_RUN);
-			else showValueScreen(WINDING_DIAMETER, 0, 0, EDIT_RUN);
+			if(!correctionFlag) showValueScreen(VAL_TYPE_WINDING_DIAMETER, 0, 0, RUN_FLAG_FIRST);
+			else showValueScreen(VAL_TYPE_WINDING_DIAMETER, 0, 0, RUN_FLAG_EDIT);
 			break;
-		case 5: // szybkosc nawijania
+		case STEP_SPEED_SET:
 			showLabelBar(DISP_SET_SPEED_LABEL);
-			if(!correctionFlag) showValueScreen(WINDING_SPEED, 0, 0, FIRST_RUN);
-			else showValueScreen(WINDING_SPEED, 0, 0, EDIT_RUN);
+			if(!correctionFlag) showValueScreen(VAL_TYPE_WINDING_SPEED, 0, 0, RUN_FLAG_FIRST);
+			else showValueScreen(VAL_TYPE_WINDING_SPEED, 0, 0, RUN_FLAG_EDIT);
 			break;
-		case 6: // podsumowanie
+		case STEP_SUMMARY:
 			showLabelBar(DISP_SET_SUMMARY_LABEL);
 			showSummary();
 			break;
-		case 61: // podsumowanie
+		case STEP_CORRECTNES_QUERY:
 			showLabelBar(DISP_CORRECTNESS_QUERY);
-			correctnessQuery(0, FIRST_RUN);
+			correctnessQuery(0, RUN_FLAG_FIRST);
 			break;
 	}
 	SSD1306_UpdateScreen();
@@ -189,9 +188,9 @@ void setTheme(void)
 // -------------------------------------------------------------------------------------
 void showProjectSelectMenu(void)
 {
-	uint8_t leftMargin = BOX_LEFT; // left margin
-	uint8_t renderingBlock = projectSelect - 1;
-	uint8_t renderingStep = 0;
+	uint8_t leftMargin 		= ALIGN_LEFT; // left margin
+	uint8_t renderingBlock 	= projectSelect - 1;
+	uint8_t renderingStep 	= 0;
 
 	if(projectSelect < 2)
 	{
@@ -205,8 +204,8 @@ void showProjectSelectMenu(void)
 		{
 			if(!renderingStep)
 			{
-				if(projectSelect % 2) leftMargin = BOX_RIGHT;
-				else leftMargin = BOX_LEFT;
+				if(projectSelect % 2) leftMargin = ALIGN_RIGHT;
+				else leftMargin = ALIGN_LEFT;
 				ProjectManager Handler = Details[renderingBlock];
 				showProjectElements(&Handler, leftMargin);
 			}
@@ -215,12 +214,12 @@ void showProjectSelectMenu(void)
 				if(projectSelect % 2)
 				{
 					renderingBlock--;
-					leftMargin = BOX_LEFT;
+					leftMargin = ALIGN_LEFT;
 				}
 				else
 				{
 					renderingBlock++;
-					leftMargin = BOX_RIGHT;
+					leftMargin = ALIGN_RIGHT;
 				}
 				ProjectManager Handler = Details[renderingBlock];
 				showProjectElements(&Handler, leftMargin);
@@ -324,17 +323,17 @@ void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t r
 		markerPosition = 0;
 		switch (type)
 		{
-			case 0: SSD1306_DrawBitmap(0, 0, IMG_WIDTH, 128, 64, 1);
+			case VAL_TYPE_CARCASS_WIDTH: SSD1306_DrawBitmap(0, 0, IMG_WIDTH, 128, 64, 1);
 				break;
-			case 1: SSD1306_DrawBitmap(0, 0, IMG_TURNS, 128, 64, 1);
+			case VAL_TYPE_CARCASS_COIL_TURNS: SSD1306_DrawBitmap(0, 0, IMG_TURNS, 128, 64, 1);
 				break;
-			case 2: SSD1306_DrawBitmap(0, 0, IMG_DIAMETER, 128, 64, 1);
+			case VAL_TYPE_WINDING_DIAMETER: SSD1306_DrawBitmap(0, 0, IMG_DIAMETER, 128, 64, 1);
 				break;
-			case 3: SSD1306_DrawBitmap(0, 0, IMG_SPEED, 128, 64, 1);
+			case VAL_TYPE_WINDING_SPEED: SSD1306_DrawBitmap(0, 0, IMG_SPEED, 128, 64, 1);
 				break;
 		}
-		if(runCount == FIRST_RUN) intToArray_chVal(Settings[type].minValue);
-		else if(runCount == EDIT_RUN) intToArray_chVal(Settings[type].setValue);
+		if(runCount == RUN_FLAG_FIRST) intToArray_chVal(Settings[type].minValue);
+		else if(runCount == RUN_FLAG_EDIT) intToArray_chVal(Settings[type].setValue);
 	}
 	else
 	{
@@ -344,13 +343,13 @@ void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t r
 	setMarkerPosition(Settings[type].dotPosition);
 	switch (type)
 	{
-		case 0: sprintf(valueLettering, "%i%i%i.%imm", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
+		case VAL_TYPE_CARCASS_WIDTH: sprintf(valueLettering, "%i%i%i.%imm", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
 			break;
-		case 1: sprintf(valueLettering, "%i%i%i%izw.", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
+		case VAL_TYPE_CARCASS_COIL_TURNS: sprintf(valueLettering, "%i%i%i%izw.", arrayToken[3], arrayToken[2], arrayToken[1], arrayToken[0]);
 			break;
-		case 2: sprintf(valueLettering, "~%i.%i%imm", arrayToken[2], arrayToken[1], arrayToken[0]);
+		case VAL_TYPE_WINDING_DIAMETER: sprintf(valueLettering, "~%i.%i%imm", arrayToken[2], arrayToken[1], arrayToken[0]);
 			break;
-		case 3: sprintf(valueLettering, "   %i", arrayToken[0]);
+		case VAL_TYPE_WINDING_SPEED: sprintf(valueLettering, "   %i", arrayToken[0]);
 			break;
 	}
 	clearValue();
@@ -496,30 +495,30 @@ void correctnessQuery(bool direction, uint8_t runCount)
 	bool color = 0;
 
 	clearContent();
-	if(runCount == CONTI_RUN)
+	if(runCount == RUN_FLAG_CONTI)
 	{
 		if(direction) selector++;
 		else selector--;
 		if(selector > 1 && selector < 10) selector = 1;
 		if(selector > 10) selector = 0;
 	}
-	color = showSelectBoxes(BOX_LEFT, selector);
+	color = showSelectBoxes(ALIGN_LEFT, selector);
 	SSD1306_GotoXY(18, 29);
 	SSD1306_Puts(YES_LABEL, &Font_11x18, color);
 	SSD1306_GotoXY(28, 50);
 	SSD1306_Puts("OK", &Font_7x10, color);
-	color = showSelectBoxes(BOX_RIGHT, selector);
+	color = showSelectBoxes(ALIGN_RIGHT, selector);
 	SSD1306_GotoXY(80, 29);
 	SSD1306_Puts(NO_LABEL, &Font_11x18, color);
 	SSD1306_GotoXY(76, 50);
 	SSD1306_Puts("POPRAW", &Font_7x10, color);
-	if(runCount == CONTI_RUN) SSD1306_UpdateScreen();
+	if(runCount == RUN_FLAG_CONTI) SSD1306_UpdateScreen();
 }
 
 bool showSelectBoxes(uint8_t margin, uint8_t pointer)
 {
 	pointer += 3;
-	if(margin == BOX_LEFT)
+	if(margin == ALIGN_LEFT)
 	{
 		if((pointer) % 2)
 		{

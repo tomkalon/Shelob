@@ -43,48 +43,66 @@ typedef struct {
 /* ENUM */
 //=============================
 
+// MENU/SETTINGS/STEPS LABELS
+typedef enum {
+	STEP_LOGO_DISP			= 0,
+	STEP_SELECT_PROJECT 	= 1,
+	STEP_PROJECT_DETAILS	= 11,
+	STEP_PROJECT_TASKS_LIST	= 12,
+	STEP_WIDTH_SET			= 2,
+	STEP_TURNS_SET			= 3,
+	STEP_DIAMETER_SET		= 4,
+	STEP_SPEED_SET			= 5,
+	STEP_SUMMARY			= 6,
+	STEP_CORRECTNES_QUERY	= 61,
+	STEP_START_POSITION_SET = 7
+} STEPS_LABELS;
+
+
 // SELECT TYPE OF VALUE
 typedef enum {
-	CARCASS_WIDTH			= 0,	// ust. szer. karkasu
-	CARCASS_COIL_TURNS 		= 1, 	// ust. ilości zwojów
-	WINDING_DIAMETER 		= 2, 	// ust. ilości zwojów
-	WINDING_SPEED			= 3		// ust. predkosci nawijania
+	VAL_TYPE_CARCASS_WIDTH		= 0,	// ust. szer. karkasu
+	VAL_TYPE_CARCASS_COIL_TURNS = 1, 	// ust. ilości zwojów
+	VAL_TYPE_WINDING_DIAMETER 	= 2, 	// ust. ilości zwojów
+	VAL_TYPE_WINDING_SPEED		= 3		// ust. predkosci nawijania
 } VALUE_TYPE;
 
 // SET VALUE
 typedef enum {
-	CARCASS_MIN_WIDTH 		= 50, 	// 5mm - minimalna szer. karkasu
-	CARCASS_MAX_WIDTH 		= 1250, // 12,5cm - maksymalna szerokosc karkasu
-	CARCASS_MIN_TURNS		= 10,	// minimalna liczba zwojow
-	CARCASS_MAX_TURNS		= 2500, // maksymalna liczba zwojow
-	WINDING_MIN_DIAMETER	= 1,	// 0,01 - minimalna srednica uzwojenia
-	WINDING_MAX_DIAMETER	= 250,	// 2,5mm - maksymalna srednica uzwojenia
-	WINDING_MIN_SPEED		= 1,	// min szybkość nawijania
-	WINDING_MAX_SPEED		= 9,	// max szybkość nawijania
+	VAL_RNG_CARCASS_MIN_WIDTH 		= 50, 	// 5mm - minimalna szer. karkasu
+	VAL_RNG_CARCASS_MAX_WIDTH 		= 1250, // 12,5cm - maksymalna szerokosc karkasu
+	VAL_RNG_CARCASS_MIN_TURNS		= 10,	// minimalna liczba zwojow
+	VAL_RNG_CARCASS_MAX_TURNS		= 2500, // maksymalna liczba zwojow
+	VAL_RNG_WINDING_MIN_DIAMETER	= 1,	// 0,01 - minimalna srednica uzwojenia
+	VAL_RNG_WINDING_MAX_DIAMETER	= 250,	// 2,5mm - maksymalna srednica uzwojenia
+	VAL_RNG_WINDING_MIN_SPEED		= 1,	// min szybkość nawijania
+	VAL_RNG_WINDING_MAX_SPEED		= 9,	// max szybkość nawijania
 } VALUE_RANGE;
 
 // CHANGE VALUE
 typedef enum {
-	VALUE_NO_CHANGING 	= 0, 	// nie zmieniaj wartosci
-	VALUE_CHANGING 		= 1  	// zmieniaj wartosc
+	VALUE_CHANGE_FLAG_NO 	= 0, 	// nie zmieniaj wartosci
+	VALUE_CHANGE_FLAG_YES 	= 1  	// zmieniaj wartosc
 } VALUE_CHANGE_FLAG;
 
 // FIRST RUN
 typedef enum {
-	EDIT_RUN			= 2,
-	FIRST_RUN 			= 1, 	// pierwsze uruchomienie
-	CONTI_RUN			= 0		// kontunuacja
+	RUN_FLAG_EDIT			= 2,
+	RUN_FLAG_FIRST			= 1, 	// pierwsze uruchomienie
+	RUN_FLAG_CONTI			= 0		// kontunuacja
 } RUN_FLAG;
 
 // BOX_POSITION
 typedef enum {
-	BOX_LEFT			= 5,	// LEFT
-	BOX_RIGHT			= 68 	// RIGHT
+	ALIGN_LEFT			= 5,	// LEFT
+	ALIGN_RIGHT			= 68 	// RIGHT
 
-} BOX_POSITION;
+} ALIGN;
 
 /* CONST */
 //=============================
+
+/* main/top labels */
 #define DISP_PROJECT_LABEL		"Wybierz projekt:"
 #define DISP_SET_WIDTH_LABEL	"Szer. karkasu:"
 #define DISP_SET_TURNS_LABEL	"Liczba zwojow:"
@@ -93,7 +111,7 @@ typedef enum {
 #define DISP_SET_SUMMARY_LABEL	"Podsumowanie:"
 #define DISP_CORRECTNESS_QUERY	"Poprawne?"
 
-/* details */
+/* details labels */
 #define WIDTH_LABEL  			"Szerokosc: "
 #define TURNS_LABEL				"Ilosc: "
 #define DIAMETER_LABEL			"Srednica: "

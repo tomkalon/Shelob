@@ -57,10 +57,10 @@ extern const uint8_t PROJECT_COUNT;
 // MAIN INTERFACE VAR's
 extern volatile uint8_t workStep;  		// Wskazuje aktualny krok w ustawieniach
 extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
-extern volatile uint8_t selector;		// selektor roboczy, menu wyboru
-extern volatile bool correctionFlag;	// informuje, czy dane edytowane w trybie poprawiania
+extern volatile uint8_t selector;		// zmienna do wskazania określonej opcji w menu wyboru
+extern volatile bool correctionFlag;	// informuje, czy ustawienia są wpisywane, czy poprawiane
 
-// UART
+// LTIM / DELAY
 
 // TIM2
 volatile uint16_t encoderCount				= 0;	// aktualne polozenie enkodera
@@ -225,7 +225,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	// ========================
-	/* TIM6 - CLICK BUFFOR */
+	/* TIM6 - CLICK/BTN BUFFOR */
 	// ========================
 	if(htim->Instance == TIM6)
 	{
@@ -242,36 +242,36 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				bool exception = 0;
 				switch(workStep)
 				{
-					case 11:
+					case STEP_PROJECT_DETAILS:
 						exception = 1;
-						workStep = 12;
+						workStep = STEP_PROJECT_TASKS_LIST;
 						break;
-					case 12:
+					case STEP_PROJECT_TASKS_LIST:
 						exception = 1;
-						workStep = 1;
+						workStep = STEP_SELECT_PROJECT;
 						break;
-					case 2:
+					case STEP_WIDTH_SET:
 						width_MAIN = arrayToInt_chVal();
 						saveSetValue(width_MAIN);
 						break;
-					case 3:
+					case STEP_TURNS_SET:
 						turns_MAIN = arrayToInt_chVal();
 						saveSetValue(turns_MAIN);
 						break;
-					case 4:
+					case STEP_DIAMETER_SET:
 						diameter_MAIN = arrayToInt_chVal();
 						saveSetValue(diameter_MAIN);
 						break;
-					case 5:
+					case STEP_SPEED_SET:
 						speed_MAIN = arrayToInt_chVal();
 						saveSetValue(speed_MAIN);
 						break;
-					case 61:
+					case STEP_CORRECTNES_QUERY:
 						exception = 1;
-						if(!selector) workStep = 7;
+						if(!selector) workStep = STEP_START_POSITION_SET;
 						else
 						{
-							workStep = 2;
+							workStep = STEP_WIDTH_SET;
 							correctionFlag = 1;
 						}
 						selector = 0;
@@ -291,29 +291,29 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			pressBtnCounter = 0;
 			switch(workStep)
 			{
-				case 1:
-					if(projectSelect == 0) workStep = 2;
-					else workStep = 11;
+				case STEP_SELECT_PROJECT:
+					if(projectSelect == 0) workStep = STEP_WIDTH_SET;
+					else workStep = STEP_PROJECT_DETAILS;
 					setTheme();
 					break;
-				case 11:
-					workStep = 1;
+				case STEP_PROJECT_DETAILS:
+					workStep = STEP_SELECT_PROJECT;
 					setTheme();
 					break;
-				case 2:
-					showValueScreen(CARCASS_WIDTH, VALUE_NO_CHANGING, 0, CONTI_RUN);
+				case STEP_WIDTH_SET:
+					showValueScreen(VAL_TYPE_CARCASS_WIDTH, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
 					break;
-				case 3:
-					showValueScreen(CARCASS_COIL_TURNS, VALUE_NO_CHANGING, 0, CONTI_RUN);
+				case STEP_TURNS_SET:
+					showValueScreen(VAL_TYPE_CARCASS_COIL_TURNS, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
 					break;
-				case 4:
-					showValueScreen(WINDING_DIAMETER, VALUE_NO_CHANGING, 0, CONTI_RUN);
+				case STEP_DIAMETER_SET:
+					showValueScreen(VAL_TYPE_WINDING_DIAMETER, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
 					break;
-				case 5:
-					showValueScreen(WINDING_SPEED, VALUE_NO_CHANGING, 0, CONTI_RUN);
+				case STEP_SPEED_SET:
+					showValueScreen(VAL_TYPE_WINDING_SPEED, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
 					break;
-				case 6:
-					workStep = 61;
+				case STEP_SUMMARY:
+					workStep = STEP_CORRECTNES_QUERY;
 					setTheme();
 					break;
 			}
@@ -336,7 +336,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			encoderCountPrev = encoderCount;
 			switch(workStep)
 			{
-				case 1: // step 1
+				case STEP_SELECT_PROJECT:
 					if(!direction)
 					{
 						if(projectSelect > 0) projectSelect--;
@@ -347,22 +347,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					}
 					setTheme();
 					break;
-				case 12:
+				case STEP_PROJECT_TASKS_LIST:
 					break;
-				case 2:
-					showValueScreen(CARCASS_WIDTH, VALUE_CHANGING, direction, CONTI_RUN);
+				case STEP_WIDTH_SET:
+					showValueScreen(VAL_TYPE_CARCASS_WIDTH, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
 					break;
-				case 3:
-					showValueScreen(CARCASS_COIL_TURNS, VALUE_CHANGING, direction, CONTI_RUN);
+				case STEP_TURNS_SET:
+					showValueScreen(VAL_TYPE_CARCASS_COIL_TURNS, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
 					break;
-				case 4:
-					showValueScreen(WINDING_DIAMETER, VALUE_CHANGING, direction, CONTI_RUN);
+				case STEP_DIAMETER_SET:
+					showValueScreen(VAL_TYPE_WINDING_DIAMETER, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
 					break;
-				case 5:
-					showValueScreen(WINDING_SPEED, VALUE_CHANGING, direction, CONTI_RUN);
+				case STEP_SPEED_SET:
+					showValueScreen(VAL_TYPE_WINDING_SPEED, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
 					break;
-				case 61:
-					correctnessQuery(direction, CONTI_RUN);
+				case STEP_CORRECTNES_QUERY:
+					correctnessQuery(direction, RUN_FLAG_CONTI);
 					break;
 
 			}
