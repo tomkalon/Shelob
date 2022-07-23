@@ -129,43 +129,45 @@ typedef enum {
 /* FUNCTIONS */
 
 //-- LOAD STRUCT VALUES
-void structInit(void);
+void Structures_Init(void); 	// przyposuje określone wartości do struktur
 
 //-- MAIN DISPLAY FUNCION
-void setTheme(); 													// wyswietla obraz w zaleznosci od wybranego kroku
+void Set_Theme(); 				// wyswietla obraz w zaleznosci od wybranego kroku
 
 //-- PROJECT SELECT PAGE (1)
-void showProjectElements(ProjectManager * details, uint8_t margin); // 5 - left; 68 - right // wyswietla kompletne menu wyboru projektu (1)
-void showProjectSelectMenu(void); 									// pobiera strukture projektu i dobiera marginesy
-void newTaskElement(void); 											// kafelek odpowiedzialny za wybór nowego zadania
+void Show_Project_Elements(ProjectManager * details, uint8_t margin); 	// 5 - left; 68 - right // wyswietla kompletne menu wyboru projektu (1)
+void Show_Project_Select_Menu(void); 									// pobiera strukture projektu i dobiera marginesy
+void New_Task_Element(void); 											// kafelek odpowiedzialny za wybór nowego zadania
 
 //-- PROJECT DETAILS (11)
-void showProjectDetails(ProjectManager * details, bool list);		// wyswietla szczegoly projektu
-void showProjectTasks(ProjectManager * details);					// wyswietla zadanai danego projektu
+void Show_Project_Details(ProjectManager * details, bool list);		// wyswietla szczegoly projektu
+void Show_Project_Tasks(ProjectManager * details);					// wyswietla zadanai danego projektu
 
 //-- VALUE SETTINGS (2++)
-void showValueScreen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t runCount);	// menu ustawien vartosci
-void setMarkerPosition(uint8_t divider); 							// ustawia marker/wskaznik na okreslone miejsce, w zaleznosci od polozenia kropki "divider"
-void moveMarker(uint8_t range);										// zwieksza markerPosition 0-4
-void changeValue(bool set, uint8_t position, uint16_t min, uint16_t max); // zwieksza lub zmniejsza cyfre 0-9
-uint16_t arrayToInt_chVal(void);									// zamienia arrayToken[] na integer
-void intToArray_chVal(uint16_t value);								// zamienia integer na arrayToken[]
-void saveSetValue(uint16_t value);									// zapamietuje wybrane dane na wypadek koniecznosci poprawki
-void drawMarker(uint8_t width, uint8_t height); 					// rysuje trójkąt - wspołrzedne wskazuja wierzchołek
-void clearMarker(void); 											// usuwa wskaznik/trojkat
-void clearValue(void);
+void Show_Value_Screen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t runCount);		// menu ustawien vartosci
+void Set_Marker_Position(uint8_t divider); 														// ustawia marker/wskaznik na okreslone miejsce, w zaleznosci od polozenia kropki "divider"
+void Move_Marker(uint8_t range);																// zwieksza markerPosition 0-4
+void Change_Value(bool set, uint8_t position, uint16_t min, uint16_t max); 						// zwieksza lub zmniejsza cyfre 0-9
+uint16_t Array_To_Int_Change_Value(void);														// zamienia arrayToken[] na integer
+void Int_To_Array_Change_Value(uint16_t value);													// zamienia integer na arrayToken[]
+void Save_Set_Value(uint16_t value);															// zapamietuje wybrane dane na wypadek koniecznosci poprawki
+void Draw_Changing_Value_Marker(uint8_t width, uint8_t height); 								// rysuje trójkąt - wspołrzedne wskazuja wierzchołek
+
+//-- CLEAR DISPLAY
+void Clear_Changing_Value_Marker(void); 	// usuwa wskaznik/trojkat
+void Clear_Value(void);						// usuwa wyświetlaną, zmienianą wartość
+void Clear_Content(void); 					// czyści na wyswietlaczu obszar ponizej paska postepu
 
 //-- SUMMARY (6)
-void showSummary(void);												// podsumowanie ustawień
+void Show_Summary(void);					// podsumowanie ustawień
 
 //-- CORRECTNESS QUERY (61)
-void correctnessQuery(bool direction, uint8_t runCount);			// zatwierdzenie ustawien
-bool showSelectBoxes(uint8_t margin, uint8_t pointer);				// okienko wyboru
+void Show_Summary_Correctness_Query(bool direction, uint8_t runCount);	// zatwierdzenie ustawien
+bool Show_Select_Boxes(uint8_t margin, uint8_t pointer);				// okienko wyboru
 
-//-- UNIVERSAL FUNCTIONS
-void showLabelBar(char* label); 									// wyswietla pasek z tytulem strony
-void clearContent(void); 											// czyści na wyswietlaczu obszar ponizej paska postepu
-void paginationBar(uint8_t pageBarWidth, uint8_t pageNo); 			// wyswietla pasek postepu - szerokosc pojedynczej strony, aktualna strona
-uint8_t countArray(ProjectManager * details); 						// określa ilość zadań w danym projekcie
+//-- UNIVERSAL FUNCTION
+void Show_Label_Bar(char* label); 							// wyswietla pasek z tytulem strony
+void Pagination_Bar(uint8_t pageBarWidth, uint8_t pageNo); 	// wyswietla pasek postepu - szerokosc pojedynczej strony, aktualna strona
+uint8_t Count_Array(ProjectManager * details); 				// określa ilość zadań w danym projekcie
 
 #endif /* INC_SSD1306_ADDS_H_ */

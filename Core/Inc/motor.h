@@ -1,12 +1,12 @@
 /*
- * misc.h
+ * motor.h
  *
- *  Created on: May 4, 2022
+ *  Created on: 23 lip 2022
  *      Author: Tomasz Kaliński
  */
 
-#ifndef INC_MISC_H_
-#define INC_MISC_H_
+#ifndef INC_MOTOR_H_
+#define INC_MOTOR_H_
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -18,8 +18,6 @@ extern C {
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "i2c.h"
 #include "tim.h"
-#include "gpio.h"
 
-#endif /* INC_MISC_H_ */
+#endif /* INC_MOTOR_H_ */

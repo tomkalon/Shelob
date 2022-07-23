@@ -1,1 +1,1 @@
-../Core/Src/ssd1306_fonts.c:334:7:FONTS_GetStringSize	32	static
+../Core/Src/ssd1306_fonts.c:334:7:FONTS_GetStringSize	16	static

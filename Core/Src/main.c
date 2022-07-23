@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ssd1306_adds.h"
+#include "motor.h"
 
 /* USER CODE END Includes */
 
@@ -52,27 +53,28 @@
 /* USER CODE BEGIN PV */
 
 // NUMBER OF SAVED PROJECTS
-extern const uint8_t PROJECT_COUNT;
+extern const uint8_t G_PROJECT_COUNT;
 
 // MAIN INTERFACE VAR's
-extern volatile uint8_t workStep;  		// Wskazuje aktualny krok w ustawieniach
-extern volatile uint8_t projectSelect;  // Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
-extern volatile uint8_t selector;		// zmienna do wskazania określonej opcji w menu wyboru
-extern volatile bool correctionFlag;	// informuje, czy ustawienia są wpisywane, czy poprawiane
+extern volatile uint8_t g_workStep;  		// Wskazuje aktualny krok w ustawieniach
+extern volatile uint8_t g_projectSelect;  	// Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
+extern volatile uint8_t g_selector;			// zmienna do wskazania określonej opcji w menu wyboru
+extern volatile bool g_correctionFlag;		// informuje, czy ustawienia są wpisywane, czy poprawiane
 
-// LTIM / DELAY
-
-// TIM2
-volatile uint16_t encoderCount				= 0;	// aktualne polozenie enkodera
+// TIM2 / ENCODER - LEFT/RIGHT
+volatile uint16_t encoderCount				= 0;		// aktualne polozenie enkodera
 volatile uint16_t encoderCountPrev 			= 16000; 	// poprzednie polozenie enkodera
 
-// TIM6
+// TIM6 / BUTTON
 static volatile uint8_t pressBtnCounter		= 0;	// licznik czasu wcisniecia przycisku
 
-// TIM7
 
 // MAIN VAR
-volatile uint16_t width_MAIN, turns_MAIN, diameter_MAIN, speed_MAIN;
+volatile uint16_t g_width_MAIN, g_turns_MAIN, g_diameter_MAIN, g_speed_MAIN;
+extern volatile uint16_t g_runnerPosition, g_rotorPosition, g_numberOfTurns, g_completeProgress;
+
+// MOTOR CONTROL
+
 
 /* USER CODE END PV */
 
@@ -123,12 +125,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // structures initialization
-  structInit();
+  Structures_Init();
 
   // display initialization
   SSD1306_Init();
   SSD1306_SetContrast(0);
-  setTheme();
+  Set_Theme();
 
   // timer TIM2 Encoder
   __HAL_TIM_SET_COUNTER(&htim2, 32000);
@@ -235,86 +237,86 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(!btnBusyFlag)
 		{
 			HAL_TIM_Base_Start_IT(&htim6);
-			if((workStep >= 2 && workStep <=61)) pressBtnCounter++;
+			if((g_workStep >= 2 && g_workStep <=61)) pressBtnCounter++;
 			if(pressBtnCounter > PRESS_BTN_TIME)
 			{
 				HAL_TIM_Base_Stop_IT(&htim6);
 				bool exception = 0;
-				switch(workStep)
+				switch(g_workStep)
 				{
 					case STEP_PROJECT_DETAILS:
 						exception = 1;
-						workStep = STEP_PROJECT_TASKS_LIST;
+						g_workStep = STEP_PROJECT_TASKS_LIST;
 						break;
 					case STEP_PROJECT_TASKS_LIST:
 						exception = 1;
-						workStep = STEP_SELECT_PROJECT;
+						g_workStep = STEP_SELECT_PROJECT;
 						break;
 					case STEP_WIDTH_SET:
-						width_MAIN = arrayToInt_chVal();
-						saveSetValue(width_MAIN);
+						g_width_MAIN = Array_To_Int_Change_Value();
+						Save_Set_Value(g_width_MAIN);
 						break;
 					case STEP_TURNS_SET:
-						turns_MAIN = arrayToInt_chVal();
-						saveSetValue(turns_MAIN);
+						g_turns_MAIN = Array_To_Int_Change_Value();
+						Save_Set_Value(g_turns_MAIN);
 						break;
 					case STEP_DIAMETER_SET:
-						diameter_MAIN = arrayToInt_chVal();
-						saveSetValue(diameter_MAIN);
+						g_diameter_MAIN = Array_To_Int_Change_Value();
+						Save_Set_Value(g_diameter_MAIN);
 						break;
 					case STEP_SPEED_SET:
-						speed_MAIN = arrayToInt_chVal();
-						saveSetValue(speed_MAIN);
+						g_speed_MAIN = Array_To_Int_Change_Value();
+						Save_Set_Value(g_speed_MAIN);
 						break;
 					case STEP_CORRECTNES_QUERY:
 						exception = 1;
-						if(!selector) workStep = STEP_START_POSITION_SET;
+						if(!g_selector) g_workStep = STEP_START_POSITION_SET;
 						else
 						{
-							workStep = STEP_WIDTH_SET;
-							correctionFlag = 1;
+							g_workStep = STEP_WIDTH_SET;
+							g_correctionFlag = 1;
 						}
-						selector = 0;
+						g_selector = 0;
 						break;
 				}
 				if(!exception)
 				{
-					workStep++;
+					g_workStep++;
 
 				}
 				pressBtnCounter = 0;
-				setTheme();
+				Set_Theme();
 			}
 		}
 		if(btnBusyFlag)
 		{
 			pressBtnCounter = 0;
-			switch(workStep)
+			switch(g_workStep)
 			{
 				case STEP_SELECT_PROJECT:
-					if(projectSelect == 0) workStep = STEP_WIDTH_SET;
-					else workStep = STEP_PROJECT_DETAILS;
-					setTheme();
+					if(g_projectSelect == 0) g_workStep = STEP_WIDTH_SET;
+					else g_workStep = STEP_PROJECT_DETAILS;
+					Set_Theme();
 					break;
 				case STEP_PROJECT_DETAILS:
-					workStep = STEP_SELECT_PROJECT;
-					setTheme();
+					g_workStep = STEP_SELECT_PROJECT;
+					Set_Theme();
 					break;
 				case STEP_WIDTH_SET:
-					showValueScreen(VAL_TYPE_CARCASS_WIDTH, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
+					Show_Value_Screen(VAL_TYPE_CARCASS_WIDTH, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
 					break;
 				case STEP_TURNS_SET:
-					showValueScreen(VAL_TYPE_CARCASS_COIL_TURNS, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
+					Show_Value_Screen(VAL_TYPE_CARCASS_COIL_TURNS, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
 					break;
 				case STEP_DIAMETER_SET:
-					showValueScreen(VAL_TYPE_WINDING_DIAMETER, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
+					Show_Value_Screen(VAL_TYPE_WINDING_DIAMETER, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
 					break;
 				case STEP_SPEED_SET:
-					showValueScreen(VAL_TYPE_WINDING_SPEED, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
+					Show_Value_Screen(VAL_TYPE_WINDING_SPEED, VALUE_CHANGE_FLAG_NO, 0, RUN_FLAG_CONTI);
 					break;
 				case STEP_SUMMARY:
-					workStep = STEP_CORRECTNES_QUERY;
-					setTheme();
+					g_workStep = STEP_CORRECTNES_QUERY;
+					Set_Theme();
 					break;
 			}
 		}
@@ -334,35 +336,35 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(encoderCount > encoderCountPrev) direction = 1;
 			else direction = 0;
 			encoderCountPrev = encoderCount;
-			switch(workStep)
+			switch(g_workStep)
 			{
 				case STEP_SELECT_PROJECT:
 					if(!direction)
 					{
-						if(projectSelect > 0) projectSelect--;
+						if(g_projectSelect > 0) g_projectSelect--;
 					}
 					else
 					{
-						if((projectSelect) < PROJECT_COUNT) projectSelect++;
+						if((g_projectSelect) < G_PROJECT_COUNT) g_projectSelect++;
 					}
-					setTheme();
+					Set_Theme();
 					break;
 				case STEP_PROJECT_TASKS_LIST:
 					break;
 				case STEP_WIDTH_SET:
-					showValueScreen(VAL_TYPE_CARCASS_WIDTH, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
+					Show_Value_Screen(VAL_TYPE_CARCASS_WIDTH, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
 					break;
 				case STEP_TURNS_SET:
-					showValueScreen(VAL_TYPE_CARCASS_COIL_TURNS, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
+					Show_Value_Screen(VAL_TYPE_CARCASS_COIL_TURNS, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
 					break;
 				case STEP_DIAMETER_SET:
-					showValueScreen(VAL_TYPE_WINDING_DIAMETER, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
+					Show_Value_Screen(VAL_TYPE_WINDING_DIAMETER, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
 					break;
 				case STEP_SPEED_SET:
-					showValueScreen(VAL_TYPE_WINDING_SPEED, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
+					Show_Value_Screen(VAL_TYPE_WINDING_SPEED, VALUE_CHANGE_FLAG_YES, direction, RUN_FLAG_CONTI);
 					break;
 				case STEP_CORRECTNES_QUERY:
-					correctnessQuery(direction, RUN_FLAG_CONTI);
+					Show_Summary_Correctness_Query(direction, RUN_FLAG_CONTI);
 					break;
 
 			}
