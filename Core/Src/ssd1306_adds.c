@@ -15,10 +15,10 @@ const uint8_t G_PROJECT_COUNT = 3; 		// liczba zapisanych projektów
 extern volatile uint16_t g_width_MAIN, g_turns_MAIN, g_diameter_MAIN, g_speed_MAIN;
 
 // VAR
-volatile uint8_t g_workStep		= 0;  	// Wskazuje aktualny krok w ustawieniach
+volatile uint8_t g_workStep			= 0;  	// Wskazuje aktualny krok w ustawieniach
 volatile uint8_t g_projectSelect	= 0;  	// Wskazuje aktualnie wybrany projekt w menu wyboru projektow ( step 1)
-volatile uint8_t g_correctionFlag = 0;	// informuje, czy dane edytowane w trybie poprawiania
-volatile uint8_t g_taskStep		= 0;	// wybierane zadanie danego projektu
+volatile uint8_t g_correctionFlag 	= 0;	// informuje, czy dane edytowane w trybie poprawiania
+volatile uint8_t g_taskStep			= 0;	// wybierane zadanie danego projektu
 
 uint8_t progressBarWidth		= 0; 	// szerokosc wskaznika stron
 uint8_t progressBarStep			= 0; 	// polozenie wskaznika stron
@@ -154,22 +154,22 @@ void Set_Theme(void)
 			break;
 		case STEP_WIDTH_SET:
 			Show_Label_Bar(DISP_SET_WIDTH_LABEL);
-			if(!g_correctionFlag) Show_Value_Screen(VAL_TYPE_CARCASS_WIDTH, 0, 0, RUN_FLAG_FIRST);
+			if (!g_correctionFlag) Show_Value_Screen(VAL_TYPE_CARCASS_WIDTH, 0, 0, RUN_FLAG_FIRST);
 			else Show_Value_Screen(VAL_TYPE_CARCASS_WIDTH, 0, 0, RUN_FLAG_EDIT);
 			break;
 		case STEP_TURNS_SET:
 			Show_Label_Bar(DISP_SET_TURNS_LABEL);
-			if(!g_correctionFlag) Show_Value_Screen(VAL_TYPE_CARCASS_COIL_TURNS, 0, 0, RUN_FLAG_FIRST);
+			if (!g_correctionFlag) Show_Value_Screen(VAL_TYPE_CARCASS_COIL_TURNS, 0, 0, RUN_FLAG_FIRST);
 			else Show_Value_Screen(VAL_TYPE_CARCASS_COIL_TURNS, 0, 0, RUN_FLAG_EDIT);
 			break;
 		case STEP_DIAMETER_SET:
 			Show_Label_Bar(DISP_SET_DIAMETER_LABEL);
-			if(!g_correctionFlag) Show_Value_Screen(VAL_TYPE_WINDING_DIAMETER, 0, 0, RUN_FLAG_FIRST);
+			if (!g_correctionFlag) Show_Value_Screen(VAL_TYPE_WINDING_DIAMETER, 0, 0, RUN_FLAG_FIRST);
 			else Show_Value_Screen(VAL_TYPE_WINDING_DIAMETER, 0, 0, RUN_FLAG_EDIT);
 			break;
 		case STEP_SPEED_SET:
 			Show_Label_Bar(DISP_SET_SPEED_LABEL);
-			if(!g_correctionFlag) Show_Value_Screen(VAL_TYPE_WINDING_SPEED, 0, 0, RUN_FLAG_FIRST);
+			if (!g_correctionFlag) Show_Value_Screen(VAL_TYPE_WINDING_SPEED, 0, 0, RUN_FLAG_FIRST);
 			else Show_Value_Screen(VAL_TYPE_WINDING_SPEED, 0, 0, RUN_FLAG_EDIT);
 			break;
 		case STEP_SUMMARY:
@@ -192,26 +192,26 @@ void Show_Project_Select_Menu(void)
 	uint8_t renderingBlock 	= g_projectSelect - 1;
 	uint8_t renderingStep 	= 0;
 
-	if(g_projectSelect < 2)
+	if (g_projectSelect < 2)
 	{
 		New_Task_Element();
-		ProjectManager Handler = Details[0];
-		Show_Project_Elements(&Handler, 68);
+		ProjectManager ProjectToken = Details[0];
+		Show_Project_Elements(&ProjectToken, 68);
 	}
 	else
 	{
 		while(renderingStep < 2)
 		{
-			if(!renderingStep)
+			if (!renderingStep)
 			{
-				if(g_projectSelect % 2) leftMargin = ALIGN_RIGHT;
+				if (g_projectSelect % 2) leftMargin = ALIGN_RIGHT;
 				else leftMargin = ALIGN_LEFT;
-				ProjectManager Handler = Details[renderingBlock];
-				Show_Project_Elements(&Handler, leftMargin);
+				ProjectManager ProjectToken = Details[renderingBlock];
+				Show_Project_Elements(&ProjectToken, leftMargin);
 			}
 			else
 			{
-				if(g_projectSelect % 2)
+				if (g_projectSelect % 2)
 				{
 					renderingBlock--;
 					leftMargin = ALIGN_LEFT;
@@ -221,8 +221,8 @@ void Show_Project_Select_Menu(void)
 					renderingBlock++;
 					leftMargin = ALIGN_RIGHT;
 				}
-				ProjectManager Handler = Details[renderingBlock];
-				Show_Project_Elements(&Handler, leftMargin);
+				ProjectManager ProjectToken = Details[renderingBlock];
+				Show_Project_Elements(&ProjectToken, leftMargin);
 			}
 			renderingStep++;
 		}
@@ -233,7 +233,7 @@ void New_Task_Element(void)
 {
 	bool color = 0;
 
-	if((g_projectSelect + 3) % 2)
+	if ((g_projectSelect + 3) % 2)
 	{
 		SSD1306_DrawFilledRectangle(5, 25, 56, 47, 1);
 		color = 0;
@@ -276,7 +276,7 @@ void Show_Project_Details(ProjectManager * details, bool list)
 	SSD1306_Puts(DETAIL_WIDTH_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 20);
 	SSD1306_Puts(width, &Font_7x10, 1);
-	if(!list)
+	if (!list)
 	{
 		SSD1306_GotoXY(0, 31);
 		SSD1306_Puts(DETAIL_TASK_COUNT_LABEL, &Font_7x10, 1);
@@ -318,7 +318,7 @@ void Show_Value_Screen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t
 {
 	char valueLettering[20];
 
-	if(runCount)
+	if (runCount)
 	{
 		markerPosition = 0;
 		switch (type)
@@ -332,12 +332,12 @@ void Show_Value_Screen(VALUE_TYPE type, uint8_t runMode, bool direction, uint8_t
 			case VAL_TYPE_WINDING_SPEED: SSD1306_DrawBitmap(0, 0, IMG_SPEED, 128, 64, 1);
 				break;
 		}
-		if(runCount == RUN_FLAG_FIRST) Int_To_Array_Change_Value(Settings[type].minValue);
-		else if(runCount == RUN_FLAG_EDIT) Int_To_Array_Change_Value(Settings[type].setValue);
+		if (runCount == RUN_FLAG_FIRST) Int_To_Array_Change_Value(Settings[type].minValue);
+		else if (runCount == RUN_FLAG_EDIT) Int_To_Array_Change_Value(Settings[type].setValue);
 	}
 	else
 	{
-		if(runMode) Change_Value(direction, markerPosition, Settings[type].minValue, Settings[type].maxValue);
+		if (runMode) Change_Value(direction, markerPosition, Settings[type].minValue, Settings[type].maxValue);
 		else Move_Marker(Settings[type].digitsCount);
 	}
 	Set_Marker_Position(Settings[type].dotPosition);
@@ -363,7 +363,7 @@ void Set_Marker_Position(uint8_t divider)
 	uint8_t correction = 0;
 
 	Clear_Changing_Value_Marker();
-	if(markerPosition >= divider)
+	if (markerPosition >= divider)
 	{
 		correction = 11;
 	}
@@ -383,20 +383,20 @@ void Change_Value(bool set, uint8_t position, uint16_t min, uint16_t max)
 	uint16_t valueToken = Array_To_Int_Change_Value();
 	uint16_t expo 		= 1;
 
-	for(uint8_t i = 0; i < position; i++) {expo *= 10;}
+	for (uint8_t i = 0; i < position; i++) {expo *= 10;}
 	uint8_t overflowFlag = arrayToken[position] = (valueToken / expo) % 10; // określa wartość cyfry nad markerem wyboru
-	if(set)
+	if (set)
 	{
-		if(overflowFlag >= 9) value = valueToken - (expo * 9);
+		if (overflowFlag >= 9) value = valueToken - (expo * 9);
 		else value = valueToken + expo;
 	}
 	else
 	{
-		if(overflowFlag <= 0) value = valueToken + (expo * 9);
+		if (overflowFlag <= 0) value = valueToken + (expo * 9);
 		else value = valueToken - expo;
 	}
-	if(value < min){value = valueToken;}
-	if(value > max){value = valueToken;}
+	if (value < min){value = valueToken;}
+	if (value > max){value = valueToken;}
 	Int_To_Array_Change_Value(value);
 }
 
@@ -405,10 +405,10 @@ uint16_t Array_To_Int_Change_Value(void)
 	volatile uint16_t expo;
 	uint16_t value = 0;
 
-	for(uint8_t i = 0; i <= 3; i++)
+	for (uint8_t i = 0; i <= 3; i++)
 	{
-		if(!i){expo = 1;}
-		else{expo *= 10;}
+		if (!i){expo = 1;}
+		else {expo *= 10;}
 		value = value + (expo * arrayToken[i]);
 	}
 	return value;
@@ -418,10 +418,10 @@ void Int_To_Array_Change_Value(uint16_t value)
 {
 	volatile uint16_t expo;
 
-	for(uint8_t i = 0; i <= 3; i++)
+	for (uint8_t i = 0; i <= 3; i++)
 	{
-		if(!i){expo = 1;}
-		else{expo *= 10;}
+		if (!i){expo = 1;}
+		else {expo *= 10;}
 		arrayToken[i] = (value / expo) % 10;
 	}
 }
@@ -433,10 +433,10 @@ void Save_Set_Value(uint16_t value)
 
 void Draw_Changing_Value_Marker(uint8_t width, uint8_t height)
 {
-	for(uint8_t h = 0; h < 5; h++)
+	for (uint8_t h = 0; h < 5; h++)
 	{
 		uint8_t w = 0;
-		while(w <= (h * 2))
+		while (w <= (h * 2))
 		{
 			SSD1306_DrawPixel(((width - h) + w), height + h, 1);
 			w++;
@@ -460,9 +460,9 @@ void Show_Summary(void)
 	uint8_t diameterArr[4];
 	uint16_t expo = 0;
 
-	for(uint8_t i = 0; i <= 3; i++)
+	for (uint8_t i = 0; i <= 3; i++)
 	{
-		if(!i) expo = 1;
+		if (!i) expo = 1;
 		else expo *= 10;
 		diameterArr[i] = (g_diameter_MAIN / expo) % 10;
 	}
@@ -495,12 +495,12 @@ void Show_Summary_Correctness_Query(bool direction, uint8_t runCount)
 	bool color = 0;
 
 	Clear_Content();
-	if(runCount == RUN_FLAG_CONTI)
+	if (runCount == RUN_FLAG_CONTI)
 	{
-		if(direction) g_selector++;
+		if (direction) g_selector++;
 		else g_selector--;
-		if(g_selector > 1 && g_selector < 10) g_selector = 1;
-		if(g_selector > 10) g_selector = 0;
+		if (g_selector > 1 && g_selector < 10) g_selector = 1;
+		if (g_selector > 10) g_selector = 0;
 	}
 	color = Show_Select_Boxes(ALIGN_LEFT, g_selector);
 	SSD1306_GotoXY(18, 29);
@@ -512,15 +512,15 @@ void Show_Summary_Correctness_Query(bool direction, uint8_t runCount)
 	SSD1306_Puts(TEXT_NO, &Font_11x18, color);
 	SSD1306_GotoXY(76, 50);
 	SSD1306_Puts(TEXT_CORRECT, &Font_7x10, color);
-	if(runCount == RUN_FLAG_CONTI) SSD1306_UpdateScreen();
+	if (runCount == RUN_FLAG_CONTI) SSD1306_UpdateScreen();
 }
 
 bool Show_Select_Boxes(uint8_t margin, uint8_t pointer)
 {
 	pointer += 3;
-	if(margin == ALIGN_LEFT)
+	if (margin == ALIGN_LEFT)
 	{
-		if((pointer) % 2)
+		if ((pointer) % 2)
 		{
 			SSD1306_DrawFilledRectangle(margin, 25, 56, 47, 1);
 			return 0;
@@ -533,7 +533,7 @@ bool Show_Select_Boxes(uint8_t margin, uint8_t pointer)
 	}
 	else
 	{
-		if(pointer % 2)
+		if (pointer % 2)
 		{
 
 			SSD1306_DrawRectangle(margin, 25, 56, 47, 1);
@@ -573,9 +573,9 @@ uint8_t Count_Array(ProjectManager * details)
 {
 	uint8_t count = 0;
 
-	for(uint8_t i = 0; i<10; i++)
+	for (uint8_t i = 0; i<10; i++)
 	{
-		if(details->turns[i] > 0) count++;
+		if (details->turns[i] > 0) count++;
 	}
 	return count;
 }

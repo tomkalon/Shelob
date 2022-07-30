@@ -1,4 +1,4 @@
-Core/Src/motor.o: ../Core/Src/motor.c ../Core/Inc/motor.h \
+Core/Src/stepper.o: ../Core/Src/stepper.c ../Core/Inc/stepper.h \
  ../Core/Inc/tim.h ../Core/Inc/main.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h \
  ../Core/Inc/stm32l0xx_hal_conf.h \
@@ -30,7 +30,7 @@ Core/Src/motor.o: ../Core/Src/motor.c ../Core/Inc/motor.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h
-../Core/Inc/motor.h:
+../Core/Inc/stepper.h:
 ../Core/Inc/tim.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:

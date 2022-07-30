@@ -26,7 +26,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ssd1306_adds.h"
-#include "motor.h"
 
 /* USER CODE END Includes */
 
@@ -37,9 +36,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
-// TIM6
-#define	PRESS_BTN_TIME 10	// dlugosc wcisniecia przycisku do zapisania danych
 
 /* USER CODE END PD */
 
@@ -68,13 +64,8 @@ volatile uint16_t encoderCountPrev 			= 16000; 	// poprzednie polozenie enkodera
 // TIM6 / BUTTON
 static volatile uint8_t pressBtnCounter		= 0;	// licznik czasu wcisniecia przycisku
 
-
 // MAIN VAR
 volatile uint16_t g_width_MAIN, g_turns_MAIN, g_diameter_MAIN, g_speed_MAIN;
-extern volatile uint16_t g_runnerPosition, g_rotorPosition, g_numberOfTurns, g_completeProgress;
-
-// MOTOR CONTROL
-
 
 /* USER CODE END PV */
 
@@ -122,6 +113,8 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
+  MX_TIM21_Init();
+  MX_TIM22_Init();
   /* USER CODE BEGIN 2 */
 
   // structures initialization
@@ -133,8 +126,10 @@ int main(void)
   Set_Theme();
 
   // timer TIM2 Encoder
-  __HAL_TIM_SET_COUNTER(&htim2, 32000);
-  HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_ALL);
+  __HAL_TIM_SET_COUNTER(&TIMER_ENCODER, 32000);
+  HAL_TIM_Encoder_Start_IT(&TIMER_ENCODER, TIM_CHANNEL_ALL);
+
+  bool workStart = 0; 					// określa zakończenie konfiguracji wstępnej i start pracy
 
   /* USER CODE END 2 */
 
@@ -146,6 +141,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  if (workStart)
+	  {
+		  //Steppers_Control_Init(g_width_MAIN, g_turns_MAIN, g_diameter_MAIN, g_speed_MAIN);
+	  }
+
   }
   /* USER CODE END 3 */
 }
@@ -198,10 +198,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-
-  /** Enables the Clock Security System
-  */
-  HAL_RCC_EnableCSS();
 }
 
 /* USER CODE BEGIN 4 */
@@ -212,12 +208,12 @@ void SystemClock_Config(void)
 // =========================================================================================
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-	if(htim->Instance == TIM2)
+	if (htim->Instance == TIM2)
 	{
-		uint8_t tim7BusyFlag = HAL_TIM_Base_GetState(&htim7);
-		uint8_t encoderBusyFlag = HAL_TIM_Encoder_GetState(&htim2);
+		uint8_t tim7BusyFlag = HAL_TIM_Base_GetState(&TIMER_ENCODER_BUFFER);
+		uint8_t encoderBusyFlag = HAL_TIM_Encoder_GetState(&TIMER_ENCODER);
 
-		if(tim7BusyFlag == 1 && encoderBusyFlag == 1) HAL_TIM_Base_Start_IT(&htim7);
+		if (tim7BusyFlag == 1 && encoderBusyFlag == 1) HAL_TIM_Base_Start_IT(&TIMER_ENCODER_BUFFER);
 	}
 }
 
@@ -227,22 +223,35 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	// ========================
-	/* TIM6 - CLICK/BTN BUFFOR */
+	/* TIM21 */
 	// ========================
-	if(htim->Instance == TIM6)
+	if (htim->Instance == TIM21)
 	{
-		bool btnBusyFlag = HAL_GPIO_ReadPin(GPIOA, SET_BTN_Pin);
+	}
+	// ========================
+	/* TIM22 */
+	// ========================
+	if (htim->Instance == TIM22)
+	{
+		HAL_GPIO_TogglePin(C_LED_GPIO_Port, C_LED_Pin);
+	}
+	// ========================
+	/* TIM6 - CLICK/BTN BUFFER */
+	// ========================
+	if (htim->Instance == TIM6)
+	{
+		bool btnBusyFlag = HAL_GPIO_ReadPin(GPIOA, MAIN_BTN_Pin);
 
-		HAL_TIM_Base_Stop_IT(&htim6);
-		if(!btnBusyFlag)
+		HAL_TIM_Base_Stop_IT(&TIMER_BUTTON_BUFFER);
+		if (!btnBusyFlag)
 		{
-			HAL_TIM_Base_Start_IT(&htim6);
-			if((g_workStep >= 2 && g_workStep <=61)) pressBtnCounter++;
-			if(pressBtnCounter > PRESS_BTN_TIME)
+			HAL_TIM_Base_Start_IT(&TIMER_BUTTON_BUFFER);
+			if ((g_workStep >= 2 && g_workStep <=61)) pressBtnCounter++;
+			if (pressBtnCounter > PRESS_BTN_TIME)
 			{
-				HAL_TIM_Base_Stop_IT(&htim6);
+				HAL_TIM_Base_Stop_IT(&TIMER_BUTTON_BUFFER);
 				bool exception = 0;
-				switch(g_workStep)
+				switch (g_workStep)
 				{
 					case STEP_PROJECT_DETAILS:
 						exception = 1;
@@ -270,7 +279,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 						break;
 					case STEP_CORRECTNES_QUERY:
 						exception = 1;
-						if(!g_selector) g_workStep = STEP_START_POSITION_SET;
+						if (!g_selector) g_workStep = STEP_START_POSITION_SET;
 						else
 						{
 							g_workStep = STEP_WIDTH_SET;
@@ -279,7 +288,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 						g_selector = 0;
 						break;
 				}
-				if(!exception)
+				if (!exception)
 				{
 					g_workStep++;
 
@@ -288,13 +297,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				Set_Theme();
 			}
 		}
-		if(btnBusyFlag)
+		if (btnBusyFlag)
 		{
 			pressBtnCounter = 0;
-			switch(g_workStep)
+			switch (g_workStep)
 			{
 				case STEP_SELECT_PROJECT:
-					if(g_projectSelect == 0) g_workStep = STEP_WIDTH_SET;
+					if (g_projectSelect == 0) g_workStep = STEP_WIDTH_SET;
 					else g_workStep = STEP_PROJECT_DETAILS;
 					Set_Theme();
 					break;
@@ -323,29 +332,29 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 
 	// ========================
-	/* TIM7 - BUFFOR LEFT/RIGHT */
+	/* TIM7 - BUFFER LEFT/RIGHT */
 	// ========================
-	if(htim->Instance == TIM7)
+	if (htim->Instance == TIM7)
 	{
 		bool direction;
 
-		HAL_TIM_Base_Stop_IT(&htim7);
-		encoderCount = (__HAL_TIM_GET_COUNTER(&htim2) / 2);
-		if(encoderCount != encoderCountPrev)
+		HAL_TIM_Base_Stop_IT(&TIMER_ENCODER_BUFFER);
+		encoderCount = (__HAL_TIM_GET_COUNTER(&TIMER_ENCODER) / 2);
+		if (encoderCount != encoderCountPrev)
 		{
-			if(encoderCount > encoderCountPrev) direction = 1;
+			if (encoderCount > encoderCountPrev) direction = 1;
 			else direction = 0;
 			encoderCountPrev = encoderCount;
-			switch(g_workStep)
+			switch (g_workStep)
 			{
 				case STEP_SELECT_PROJECT:
-					if(!direction)
+					if (!direction)
 					{
-						if(g_projectSelect > 0) g_projectSelect--;
+						if (g_projectSelect > 0) g_projectSelect--;
 					}
 					else
 					{
-						if((g_projectSelect) < G_PROJECT_COUNT) g_projectSelect++;
+						if ((g_projectSelect) < G_PROJECT_COUNT) g_projectSelect++;
 					}
 					Set_Theme();
 					break;
@@ -377,11 +386,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 // =========================================================================================
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	uint8_t tim6BusyFlag = HAL_TIM_Base_GetState(&htim6);
-	uint8_t tim7BusyFlag = HAL_TIM_Base_GetState(&htim7);
-	if((tim6BusyFlag == 1) && (tim7BusyFlag == 1))
+	uint8_t tim6BusyFlag = HAL_TIM_Base_GetState(&TIMER_BUTTON_BUFFER);
+	uint8_t tim7BusyFlag = HAL_TIM_Base_GetState(&TIMER_ENCODER_BUFFER);
+	if ((tim6BusyFlag == 1) && (tim7BusyFlag == 1))
 	{
-		if(GPIO_Pin == SET_BTN_Pin) HAL_TIM_Base_Start_IT(&htim6);
+		if (GPIO_Pin == MAIN_BTN_Pin) HAL_TIM_Base_Start_IT(&TIMER_BUTTON_BUFFER);
 	}
 }
 // =========================================================================================

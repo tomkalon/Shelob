@@ -13,8 +13,9 @@
 extern C {
 #endif
 
+#include <stdbool.h>
+#include <stdio.h>
 #include "ssd1306.h"
-#include "misc.h"
 
 /* STRUCT */
 //=============================
@@ -39,7 +40,6 @@ typedef struct {
 	uint8_t 	dotPosition;
 } Step;
 
-
 /* ENUM */
 //=============================
 
@@ -58,7 +58,6 @@ typedef enum {
 	STEP_START_POSITION_SET = 7
 } STEPS_LABELS;
 
-
 // SELECT TYPE OF VALUE
 typedef enum {
 	VAL_TYPE_CARCASS_WIDTH		= 0,	// ust. szer. karkasu
@@ -68,6 +67,7 @@ typedef enum {
 } VALUE_TYPE;
 
 // SET VALUE
+/* VAL_RNG_WINDING -> if changed - add/remove switch case in stepper.c || FUNC: Steppers_Control_Init */
 typedef enum {
 	VAL_RNG_CARCASS_MIN_WIDTH 		= 50, 	// 5mm - minimalna szer. karkasu
 	VAL_RNG_CARCASS_MAX_WIDTH 		= 1250, // 12,5cm - maksymalna szerokosc karkasu
@@ -76,7 +76,7 @@ typedef enum {
 	VAL_RNG_WINDING_MIN_DIAMETER	= 1,	// 0,01 - minimalna srednica uzwojenia
 	VAL_RNG_WINDING_MAX_DIAMETER	= 250,	// 2,5mm - maksymalna srednica uzwojenia
 	VAL_RNG_WINDING_MIN_SPEED		= 1,	// min szybkość nawijania
-	VAL_RNG_WINDING_MAX_SPEED		= 9,	// max szybkość nawijania
+	VAL_RNG_WINDING_MAX_SPEED		= 5,	// max szybkość nawijania
 } VALUE_RANGE;
 
 // CHANGE VALUE
