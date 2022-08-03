@@ -21,4 +21,4 @@
 ../Core/Src/ssd1306_adds.c:565:6:Pagination_Bar	16	static
 ../Core/Src/ssd1306_adds.c:128:6:Set_Theme	16	static
 ../Core/Src/ssd1306_adds.c:572:9:Count_Array	0	static
-../Core/Src/ssd1306_adds.c:37:6:Structures_Init	32	static
+../Core/Src/ssd1306_adds.c:37:6:Structures_Init	24	static

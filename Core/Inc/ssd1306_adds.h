@@ -70,11 +70,11 @@ typedef enum {
 /* VAL_RNG_WINDING -> if changed - add/remove switch case in stepper.c || FUNC: Steppers_Control_Init */
 typedef enum {
 	VAL_RNG_CARCASS_MIN_WIDTH 		= 50, 	// 5mm - minimalna szer. karkasu
-	VAL_RNG_CARCASS_MAX_WIDTH 		= 1250, // 12,5cm - maksymalna szerokosc karkasu
+	VAL_RNG_CARCASS_MAX_WIDTH 		= 1299, // 12,5cm - maksymalna szerokosc karkasu
 	VAL_RNG_CARCASS_MIN_TURNS		= 10,	// minimalna liczba zwojow
-	VAL_RNG_CARCASS_MAX_TURNS		= 2500, // maksymalna liczba zwojow
+	VAL_RNG_CARCASS_MAX_TURNS		= 2999, // maksymalna liczba zwojow
 	VAL_RNG_WINDING_MIN_DIAMETER	= 1,	// 0,01 - minimalna srednica uzwojenia
-	VAL_RNG_WINDING_MAX_DIAMETER	= 250,	// 2,5mm - maksymalna srednica uzwojenia
+	VAL_RNG_WINDING_MAX_DIAMETER	= 199,	// 1.99mm - maksymalna srednica uzwojenia
 	VAL_RNG_WINDING_MIN_SPEED		= 1,	// min szybkość nawijania
 	VAL_RNG_WINDING_MAX_SPEED		= 5,	// max szybkość nawijania
 } VALUE_RANGE;
@@ -112,18 +112,18 @@ typedef enum {
 #define DISP_CORRECTNESS_QUERY	"Poprawne?"
 
 /* details labels */
-#define DETAIL_WIDTH_LABEL  	"Szerokosc: "
-#define DETAIL_TURNS_LABEL		"Ilosc: "
-#define DETAIL_DIAMETER_LABEL	"Srednica: "
-#define DETAIL_SPEED_LABEL		"Predkosc:"
-#define DETAIL_TASK_COUNT_LABEL "L. zadan: "
+#define DISP_DETAIL_WIDTH_LABEL  		"Szerokosc: "
+#define DISP_DETAIL_TURNS_LABEL			"Ilosc: "
+#define DISP_DETAIL_DIAMETER_LABEL		"Srednica: "
+#define DISP_DETAIL_SPEED_LABEL			"Predkosc:"
+#define DISP_DETAIL_TASK_COUNT_LABEL 	"L. zadan: "
 
 /* selector */
-#define TEXT_YES		"TAK"
-#define TEXT_NO			"NIE"
-#define TEXT_OK			"OK"
-#define TEXT_CORRECT	"POPRAW"
-#define TEXT_RETURN		"POWROT"
+#define DISP_TEXT_YES		"TAK"
+#define DISP_TEXT_NO		"NIE"
+#define DISP_TEXT_OK		"OK"
+#define DISP_TEXT_CORRECT	"POPRAW"
+#define DISP_TEXT_RETURN	"POWROT"
 
 //=============================
 /* FUNCTIONS */

@@ -273,13 +273,13 @@ void Show_Project_Details(ProjectManager * details, bool list)
 	sprintf(width, "%i.%imm", details->width / 10, details->width % 10);
 	Show_Label_Bar(details->fullName);
 	SSD1306_GotoXY(0, 20);
-	SSD1306_Puts(DETAIL_WIDTH_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DISP_DETAIL_WIDTH_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 20);
 	SSD1306_Puts(width, &Font_7x10, 1);
 	if (!list)
 	{
 		SSD1306_GotoXY(0, 31);
-		SSD1306_Puts(DETAIL_TASK_COUNT_LABEL, &Font_7x10, 1);
+		SSD1306_Puts(DISP_DETAIL_TASK_COUNT_LABEL, &Font_7x10, 1);
 		SSD1306_GotoXY(70, 31);
 		uint8_t count = details->taskCount;
 		sprintf(width, "%i", count);
@@ -300,12 +300,12 @@ void Show_Project_Tasks(ProjectManager * details)
 	char valueToken[10];
 
 	SSD1306_GotoXY(0, 31);
-	SSD1306_Puts(DETAIL_TURNS_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DISP_DETAIL_TURNS_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 31);
 	sprintf(valueToken, "%i", details->turns[g_taskStep]);
 	SSD1306_Puts(valueToken, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 42);
-	SSD1306_Puts(DETAIL_DIAMETER_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DISP_DETAIL_DIAMETER_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 42);
 	sprintf(valueToken, "%i", details->diameter[g_taskStep]);
 	SSD1306_Puts(valueToken, &Font_7x10, 1);
@@ -471,19 +471,19 @@ void Show_Summary(void)
 	sprintf(diameter, " %i.%i%i mm", diameterArr[2], diameterArr[1], diameterArr[0]);
 	sprintf(speed, " %i", g_speed_MAIN);
 	SSD1306_GotoXY(0, 20);
-	SSD1306_Puts(DETAIL_WIDTH_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DISP_DETAIL_WIDTH_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(70, 20);
 	SSD1306_Puts(width, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 31);
-	SSD1306_Puts(DETAIL_TURNS_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DISP_DETAIL_TURNS_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(42, 31);
 	SSD1306_Puts(turns, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 42);
-	SSD1306_Puts(DETAIL_DIAMETER_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DISP_DETAIL_DIAMETER_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(63, 42);
 	SSD1306_Puts(diameter, &Font_7x10, 1);
 	SSD1306_GotoXY(0, 53);
-	SSD1306_Puts(DETAIL_SPEED_LABEL, &Font_7x10, 1);
+	SSD1306_Puts(DISP_DETAIL_SPEED_LABEL, &Font_7x10, 1);
 	SSD1306_GotoXY(63, 53);
 	SSD1306_Puts(speed, &Font_7x10, 1);
 }
@@ -504,14 +504,14 @@ void Show_Summary_Correctness_Query(bool direction, uint8_t runCount)
 	}
 	color = Show_Select_Boxes(ALIGN_LEFT, g_selector);
 	SSD1306_GotoXY(18, 29);
-	SSD1306_Puts(TEXT_YES, &Font_11x18, color);
+	SSD1306_Puts(DISP_TEXT_YES, &Font_11x18, color);
 	SSD1306_GotoXY(28, 50);
-	SSD1306_Puts(TEXT_OK, &Font_7x10, color);
+	SSD1306_Puts(DISP_TEXT_OK, &Font_7x10, color);
 	color = Show_Select_Boxes(ALIGN_RIGHT, g_selector);
 	SSD1306_GotoXY(80, 29);
-	SSD1306_Puts(TEXT_NO, &Font_11x18, color);
+	SSD1306_Puts(DISP_TEXT_NO, &Font_11x18, color);
 	SSD1306_GotoXY(76, 50);
-	SSD1306_Puts(TEXT_CORRECT, &Font_7x10, color);
+	SSD1306_Puts(DISP_TEXT_CORRECT, &Font_7x10, color);
 	if (runCount == RUN_FLAG_CONTI) SSD1306_UpdateScreen();
 }
 

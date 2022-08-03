@@ -47,6 +47,6 @@ typedef enum {
 	STEPPER_SPEED_FASTEST	= 399
 } STEPPER_SPEED;
 
-void Steppers_Control_Init(uint16_t width, uint16_t turns, uint16_t diameter, uint16_t speed);
+uint8_t Steppers_Control_Init(uint16_t width, uint16_t turns, uint16_t diameter, uint16_t speed);
 
 #endif /* INC_STEPPER_H_ */
