@@ -48,5 +48,6 @@ typedef enum {
 } STEPPER_SPEED;
 
 uint8_t Steppers_Control_Init(uint16_t width, uint16_t turns, uint16_t diameter, uint16_t speed);
+void Steppers_Run(uint8_t mode);
 
 #endif /* INC_STEPPER_H_ */
